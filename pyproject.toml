@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "desktop-pet"
+version = "1.0.0"
+description = "A transparent always-on-top desktop virtual pet"
+requires-python = ">=3.9"
+dependencies = [
+    "PyQt5>=5.15.0",
+    "Pillow>=9.0.0",
+    "pynput>=1.7.6",
+    "plyer>=2.1.0",
+]
+
+[project.scripts]
+desktop-pet = "main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pet*", "ui*", "utils*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "."]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = ["E501"]
