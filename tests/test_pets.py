@@ -4,16 +4,10 @@ from __future__ import annotations
 import sys
 import os
 
-import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
-@pytest.fixture(scope="session")
-def qt_app():
-    from PyQt5.QtWidgets import QApplication
-    app = QApplication.instance() or QApplication(sys.argv)
-    return app
 
 
 class TestPetFactory:
@@ -31,12 +25,13 @@ class TestPetFactory:
         pet = PetFactory.create("panda")
         assert isinstance(pet, SimplePet)
 
-    def test_unknown_type_returns_full_pet(self, qt_app):
+    def test_unknown_type_returns_full_pet(self, qt_app, db):
         from pet.factory import PetFactory
         from pet.full_pet import FullPet
 
-        pet = PetFactory.create("unknown_type", "Test")
+        pet = PetFactory.create("unknown_type", "Test", db=db)
         assert isinstance(pet, FullPet)
+        pet.cleanup()
 
     def test_available_types_no_cat(self, qt_app):
         from pet.factory import PetFactory
@@ -95,48 +90,42 @@ class TestSimplePet:
 
 
 class TestFullPet:
-    def test_has_stats_protocol(self, qt_app):
+    def test_has_stats_protocol(self, qt_app, db):
         from pet.full_pet import FullPet
         from pet.protocols import HasStats
-        from utils.database import PetDatabase
 
-        db = PetDatabase()
         pet = FullPet("fox", "Test", db)
         assert isinstance(pet, HasStats)
+        pet.cleanup()
 
-    def test_feed_increases_hunger(self, qt_app):
+    def test_feed_increases_hunger(self, qt_app, db):
         from pet.full_pet import FullPet
-        from utils.database import PetDatabase
 
-        db = PetDatabase()
         pet = FullPet("fox", "Test", db)
         pet.hunger = 50.0
         pet.feed()
         assert pet.hunger > 50.0
+        pet.cleanup()
 
-    def test_no_cat_default(self, qt_app):
+    def test_no_cat_default(self, qt_app, db):
         from pet.full_pet import FullPet
-        from utils.database import PetDatabase
 
-        db = PetDatabase()
         pet = FullPet(db=db)
         assert pet.pet_type != "cat"
+        pet.cleanup()
 
-    def test_energy_decays(self, qt_app):
+    def test_energy_decays(self, qt_app, db):
         from pet.full_pet import FullPet
-        from utils.database import PetDatabase
 
-        db = PetDatabase()
         pet = FullPet("fox", "Test", db)
         initial = pet.energy
         pet.update_stats()
         assert pet.energy < initial
+        pet.cleanup()
 
-    def test_mood_no_cat_emojis(self, qt_app):
+    def test_mood_no_cat_emojis(self, qt_app, db):
         from pet.full_pet import FullPet
-        from utils.database import PetDatabase
 
-        db = PetDatabase()
         pet = FullPet("fox", "Test", db)
         for hunger, energy, happiness in [
             (10, 80, 80), (80, 10, 80), (80, 80, 90), (80, 80, 20)
@@ -146,3 +135,5 @@ class TestFullPet:
             assert "😸" not in mood
             assert "😿" not in mood
             assert "😺" not in mood
+
+        pet.cleanup()

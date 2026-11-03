@@ -1,0 +1,342 @@
+{
+  "target": {
+    "implementation": "CPython",
+    "python": "3.13",
+    "platform": "win_amd64",
+    "abi": "cp313",
+    "compiler": "MSC"
+  },
+  "generated": "2026-11-03",
+  "resolution": "Metadata-derived pins, not an executed pip resolver; network access from local Python is blocked. Validate on target before release.",
+  "roots": {
+    "runtime": [
+      "PyQt6",
+      "PyQt6-Qt6",
+      "PyQt6-sip"
+    ],
+    "build": [
+      "pyinstaller",
+      "pip",
+      "setuptools",
+      "wheel"
+    ],
+    "test": [
+      "pytest",
+      "ruff"
+    ]
+  },
+  "packages": [
+    {
+      "name": "PyQt6",
+      "version": "6.12.0",
+      "filename": "pyqt6-6.12.0-cp310-abi3-win_amd64.whl",
+      "sha256": "c764f22d101ea9885533ee8452752b929e2ad1d3d77a5c1c12ac82e5f30c99ae",
+      "artifact_url": "https://files.pythonhosted.org/packages/07/20/946437c95a099429a7634e5743868e917be039ac43d16987bbdfaa50cade/pyqt6-6.12.0-cp310-abi3-win_amd64.whl",
+      "metadata_source": "https://pypi.org/pypi/PyQt6/6.12.0/json",
+      "requires_python": ">=3.10",
+      "requires_dist": [
+        "PyQt6-sip<14,>=13.13",
+        "PyQt6-Qt6<6.13.0,>=6.12.0"
+      ],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "PyQt6-Qt6",
+      "version": "6.12.0",
+      "filename": "pyqt6_qt6-6.12.0-py3-none-win_amd64.whl",
+      "sha256": "a0f3e52fcd014b3d40f4aa856f8cb6843cf13720a2c2f31267f03702bc54d07b",
+      "artifact_url": "https://files.pythonhosted.org/packages/31/35/1bf45d60b44c7f942d73cb6455b39974b2c6101ff068f568e4acce6f52cb/pyqt6_qt6-6.12.0-py3-none-win_amd64.whl",
+      "metadata_source": "https://pypi.org/pypi/PyQt6-Qt6/6.12.0/json",
+      "requires_python": null,
+      "requires_dist": [],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "altgraph",
+      "version": "0.17.5",
+      "filename": "altgraph-0.17.5-py2.py3-none-any.whl",
+      "sha256": "f3a22400bce1b0c701683820ac4f3b159cd301acab067c51c653e06961600597",
+      "artifact_url": "https://files.pythonhosted.org/packages/a9/ba/000a1996d4308bc65120167c21241a3b205464a2e0b58deda26ae8ac21d1/altgraph-0.17.5-py2.py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/altgraph/0.17.5/json",
+      "requires_python": null,
+      "requires_dist": [],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "packaging",
+      "version": "26.2",
+      "filename": "packaging-26.2-py3-none-any.whl",
+      "sha256": "5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e",
+      "artifact_url": "https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/packaging/26.2/json",
+      "requires_python": ">=3.8",
+      "requires_dist": [],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "pefile",
+      "version": "2024.8.26",
+      "filename": "pefile-2024.8.26-py3-none-any.whl",
+      "sha256": "76f8b485dcd3b1bb8166f1128d395fa3d87af26360c2358fb75b80019b957c6f",
+      "artifact_url": "https://files.pythonhosted.org/packages/54/16/12b82f791c7f50ddec566873d5bdd245baa1491bac11d15ffb98aecc8f8b/pefile-2024.8.26-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pefile/2024.8.26/json",
+      "requires_python": ">=3.6.0",
+      "requires_dist": [],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "pyinstaller-hooks-contrib",
+      "version": "2026.7",
+      "filename": "pyinstaller_hooks_contrib-2026.7-py3-none-any.whl",
+      "sha256": "24257a04c7a5a7a034cf28e39dcee20fbeeb9f043076729480f2e1b69904408a",
+      "artifact_url": "https://files.pythonhosted.org/packages/0a/67/350377af7b50416344ab8792756d414eef7629c618a73e9a0b13bb1552d9/pyinstaller_hooks_contrib-2026.7-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pyinstaller-hooks-contrib/2026.7/json",
+      "requires_python": ">=3.8",
+      "requires_dist": [
+        "importlib_metadata>=4.6; python_version < \"3.10\"",
+        "packaging>=22.0"
+      ],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "pywin32-ctypes",
+      "version": "0.2.3",
+      "filename": "pywin32_ctypes-0.2.3-py3-none-any.whl",
+      "sha256": "8a1513379d709975552d202d942d9837758905c8d01eb82b8bcc30918929e7b8",
+      "artifact_url": "https://files.pythonhosted.org/packages/de/3d/8161f7711c017e01ac9f008dfddd9410dff3674334c233bde66e7ba65bbf/pywin32_ctypes-0.2.3-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pywin32-ctypes/0.2.3/json",
+      "requires_python": ">=3.6",
+      "requires_dist": [],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "setuptools",
+      "version": "82.0.1",
+      "filename": "setuptools-82.0.1-py3-none-any.whl",
+      "sha256": "a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb",
+      "artifact_url": "https://files.pythonhosted.org/packages/9d/76/f789f7a86709c6b087c5a2f52f911838cad707cc613162401badc665acfe/setuptools-82.0.1-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/setuptools/82.0.1/json",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "pytest!=8.1.*,>=6; extra == \"test\"",
+        "virtualenv>=13.0.0; extra == \"test\"",
+        "wheel>=0.44.0; extra == \"test\"",
+        "pip>=19.1; extra == \"test\"",
+        "packaging>=24.2; extra == \"test\"",
+        "jaraco.envs>=2.2; extra == \"test\"",
+        "pytest-xdist>=3; extra == \"test\"",
+        "jaraco.path>=3.7.2; extra == \"test\"",
+        "build[virtualenv]>=1.0.3; extra == \"test\"",
+        "filelock>=3.4.0; extra == \"test\"",
+        "ini2toml[lite]>=0.14; extra == \"test\"",
+        "tomli-w>=1.0.0; extra == \"test\"",
+        "pytest-timeout; extra == \"test\"",
+        "pytest-perf; sys_platform != \"cygwin\" and extra == \"test\"",
+        "jaraco.develop>=7.21; (python_version >= \"3.9\" and sys_platform != \"cygwin\") and extra == \"test\"",
+        "pytest-home>=0.5; extra == \"test\"",
+        "pytest-subprocess; extra == \"test\"",
+        "pyproject-hooks!=1.1; extra == \"test\"",
+        "jaraco.test>=5.5; extra == \"test\"",
+        "sphinx>=3.5; extra == \"doc\"",
+        "jaraco.packaging>=9.3; extra == \"doc\"",
+        "rst.linker>=1.9; extra == \"doc\"",
+        "furo; extra == \"doc\"",
+        "sphinx-lint; extra == \"doc\"",
+        "jaraco.tidelift>=1.4; extra == \"doc\"",
+        "pygments-github-lexers==0.0.5; extra == \"doc\"",
+        "sphinx-favicon; extra == \"doc\"",
+        "sphinx-inline-tabs; extra == \"doc\"",
+        "sphinx-reredirects; extra == \"doc\"",
+        "sphinxcontrib-towncrier; extra == \"doc\"",
+        "sphinx-notfound-page<2,>=1; extra == \"doc\"",
+        "pyproject-hooks!=1.1; extra == \"doc\"",
+        "towncrier<24.7; extra == \"doc\"",
+        "packaging>=24.2; extra == \"core\"",
+        "more_itertools>=8.8; extra == \"core\"",
+        "jaraco.text>=3.7; extra == \"core\"",
+        "importlib_metadata>=6; python_version < \"3.10\" and extra == \"core\"",
+        "tomli>=2.0.1; python_version < \"3.11\" and extra == \"core\"",
+        "wheel>=0.43.0; extra == \"core\"",
+        "jaraco.functools>=4; extra == \"core\"",
+        "more_itertools; extra == \"core\"",
+        "pytest-checkdocs>=2.4; extra == \"check\"",
+        "pytest-ruff>=0.2.1; sys_platform != \"cygwin\" and extra == \"check\"",
+        "ruff>=0.13.0; sys_platform != \"cygwin\" and extra == \"check\"",
+        "pytest-cov; extra == \"cover\"",
+        "pytest-enabler>=2.2; extra == \"enabler\"",
+        "pytest-mypy; extra == \"type\"",
+        "mypy==1.18.*; extra == \"type\"",
+        "importlib_metadata>=7.0.2; python_version < \"3.10\" and extra == \"type\"",
+        "jaraco.develop>=7.21; sys_platform != \"cygwin\" and extra == \"type\""
+      ],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "wheel",
+      "version": "0.45.1",
+      "filename": "wheel-0.45.1-py3-none-any.whl",
+      "sha256": "708e7481cc80179af0e556bbf0cc00b8444c7321e2700b8d8580231d13017248",
+      "artifact_url": "https://files.pythonhosted.org/packages/0b/2c/87f3254fd8ffd29e4c02732eee68a83a1d3c346ae39bc6822dcbcb697f2b/wheel-0.45.1-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/wheel/0.45.1/json",
+      "requires_python": ">=3.8",
+      "requires_dist": [
+        "pytest>=6.0.0; extra == \"test\"",
+        "setuptools>=65; extra == \"test\""
+      ],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "pip",
+      "version": "26.3",
+      "filename": "pip-26.3-py3-none-any.whl",
+      "sha256": "f3b60b20ffaadd4415ed7957212a38ac63fa4c5fa375bd0f4a797777940fad13",
+      "artifact_url": "https://files.pythonhosted.org/packages/07/25/ee8c38ae72d66b844ce8eb9711ba905dba21ca1a8a0c960057c41cd23337/pip-26.3-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pip/26.3/json",
+      "requires_python": ">=3.10",
+      "requires_dist": [],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "pytest",
+      "version": "9.1.1",
+      "filename": "pytest-9.1.1-py3-none-any.whl",
+      "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c",
+      "artifact_url": "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pytest/9.1.1/json",
+      "requires_python": ">=3.10",
+      "requires_dist": [
+        "colorama>=0.4; sys_platform == \"win32\"",
+        "exceptiongroup>=1; python_version < \"3.11\"",
+        "iniconfig>=1.0.1",
+        "packaging>=22",
+        "pluggy<2,>=1.5",
+        "pygments>=2.7.2",
+        "tomli>=1; python_version < \"3.11\"",
+        "argcomplete; extra == \"dev\"",
+        "attrs>=19.2; extra == \"dev\"",
+        "hypothesis>=3.56; extra == \"dev\"",
+        "mock; extra == \"dev\"",
+        "requests; extra == \"dev\"",
+        "setuptools; extra == \"dev\"",
+        "xmlschema; extra == \"dev\""
+      ],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6",
+      "filename": "colorama-0.4.6-py2.py3-none-any.whl",
+      "sha256": "4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6",
+      "artifact_url": "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/colorama/0.4.6/json",
+      "requires_python": "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7",
+      "requires_dist": [],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.0",
+      "filename": "iniconfig-2.3.0-py3-none-any.whl",
+      "sha256": "f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12",
+      "artifact_url": "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/iniconfig/2.3.0/json",
+      "requires_python": ">=3.10",
+      "requires_dist": [],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0",
+      "filename": "pluggy-1.6.0-py3-none-any.whl",
+      "sha256": "e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746",
+      "artifact_url": "https://files.pythonhosted.org/packages/54/20/4d324d65cc6d9205fabedc306948156824eb9f0ee1633355a8f7ec5c66bf/pluggy-1.6.0-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/pluggy/1.6.0/json",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "pre-commit; extra == \"dev\"",
+        "tox; extra == \"dev\"",
+        "pytest; extra == \"testing\"",
+        "pytest-benchmark; extra == \"testing\"",
+        "coverage; extra == \"testing\""
+      ],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "Pygments",
+      "version": "2.20.0",
+      "filename": "pygments-2.20.0-py3-none-any.whl",
+      "sha256": "81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176",
+      "artifact_url": "https://files.pythonhosted.org/packages/f4/7e/a72dd26f3b0f4f2bf1dd8923c85f7ceb43172af56d63c7383eb62b332364/pygments-2.20.0-py3-none-any.whl",
+      "metadata_source": "https://pypi.org/pypi/Pygments/2.20.0/json",
+      "requires_python": ">=3.9",
+      "requires_dist": [
+        "colorama>=0.4.6; extra == \"windows-terminal\""
+      ],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "pyinstaller",
+      "version": "6.22.3",
+      "filename": "pyinstaller-6.22.3-py3-none-win_amd64.whl",
+      "sha256": "500bd58c7bf7e584a8435adccbd763a0b918d5c12b08d74ff50fd79b2915458b",
+      "artifact_url": "https://files.pythonhosted.org/packages/24/83/c5422204772a27aef643280fdc887b7ef55679989096b21dceb1b9625fc4/pyinstaller-6.22.3-py3-none-win_amd64.whl",
+      "metadata_source": "https://pypi.org/pypi/pyinstaller/6.22.3/json",
+      "requires_python": "<3.16,>=3.8",
+      "requires_dist": [
+        "altgraph",
+        "importlib-metadata>=4.6; python_version < \"3.10\"",
+        "macholib>=1.8; sys_platform == \"darwin\"",
+        "packaging>=22.0",
+        "pefile>=2022.5.30; sys_platform == \"win32\"",
+        "pyinstaller-hooks-contrib>=2026.7",
+        "pywin32-ctypes>=0.2.1; sys_platform == \"win32\"",
+        "setuptools>=42.0.0",
+        "argcomplete; extra == \"completion\"",
+        "execnet>=1.5.0; extra == \"hook-testing\"",
+        "psutil; extra == \"hook-testing\"",
+        "pytest>=2.7.3; extra == \"hook-testing\""
+      ],
+      "yanked": false,
+      "dependency_metadata_observed": true
+    },
+    {
+      "name": "PyQt6-sip",
+      "version": "13.13.0",
+      "filename": "pyqt6_sip-13.13.0-cp313-cp313-win_amd64.whl",
+      "sha256": "b202f08bf0d68c0bd80def5c273acd0e1fe3deee8eda9ad8244b8286bc333e0a",
+      "metadata_source": "https://pypi.org/project/PyQt6-sip/13.13.0/#files",
+      "requires_python": ">=3.10",
+      "requires_dist": [],
+      "metadata_note": "Version and wheel hash from project release-files; dependency closure must also be checked by pip --dry-run / pip check on target.",
+      "yanked": false,
+      "dependency_metadata_observed": false
+    },
+    {
+      "name": "ruff",
+      "version": "0.17.2",
+      "filename": "ruff-0.17.2-py3-none-win_amd64.whl",
+      "sha256": "1b59d447f197bef9ef48a22ba1a6016137753c6099e9bac9c36eb566e422424c",
+      "metadata_source": "https://pypi.org/project/ruff/0.17.2/#files",
+      "requires_python": null,
+      "requires_dist": [],
+      "metadata_note": "Version and wheel hash from project release-files; dependency closure must also be checked by pip --dry-run / pip check on target.",
+      "yanked": false,
+      "dependency_metadata_observed": false
+    }
+  ]
+}

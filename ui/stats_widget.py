@@ -2,9 +2,9 @@
 """Statistics display window for stat-bearing pets."""
 from __future__ import annotations
 
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import (
     QFrame,
     QGridLayout,
     QHBoxLayout,
@@ -63,18 +63,20 @@ class StatsWindow(QWidget):
     def _init_ui(self) -> None:
         self.setWindowTitle(f"Статистика — {self.pet.name}")
         self.setFixedSize(350, 450)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
 
         main = QVBoxLayout()
         main.setSpacing(10)
         main.setContentsMargins(15, 15, 15, 15)
 
-        title = QLabel(f"🐾 {self.pet.name}")
+        title = QLabel()
+        title.setTextFormat(Qt.TextFormat.PlainText)
+        title.setText(f"🐾 {self.pet.name}")
         font = QFont()
         font.setPointSize(16)
         font.setBold(True)
         title.setFont(font)
-        title.setAlignment(Qt.AlignCenter)
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main.addWidget(title)
 
         # Level / exp row
@@ -108,7 +110,10 @@ class StatsWindow(QWidget):
         self.mood_label = QLabel(f"Настроение: {self.pet.get_mood()}")
         main.addWidget(self.mood_label)
 
-        main.addWidget(QLabel(f"Тип: {self.pet.pet_type.title()}"))
+        type_label = QLabel()
+        type_label.setTextFormat(Qt.TextFormat.PlainText)
+        type_label.setText(f"Тип: {self.pet.pet_type.title()}")
+        main.addWidget(type_label)
 
         main.addWidget(self._separator())
 
@@ -134,8 +139,8 @@ class StatsWindow(QWidget):
 
     def _separator(self) -> QFrame:
         line = QFrame()
-        line.setFrameShape(QFrame.HLine)
-        line.setFrameShadow(QFrame.Sunken)
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
         return line
 
     def _stat_row(

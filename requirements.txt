@@ -1,1 +1,2 @@
-PyQt5>=5.15
+# Locked runtime for the supported Windows CPython 3.13 AMD64 release target.
+-r requirements/runtime-cp313-win_amd64.lock

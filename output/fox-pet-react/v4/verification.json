@@ -1,0 +1,85 @@
+{
+  "status": "candidate_pending_review",
+  "head_source": [
+    24,
+    4,
+    46,
+    27
+  ],
+  "head_edge_source": [
+    22,
+    4,
+    24,
+    23
+  ],
+  "head_roi": "[24,4,46,29) OR [22,4,24,25)",
+  "pose_count": 15,
+  "tail_cadence_ms": 264,
+  "head_change_ms": [
+    0,
+    132,
+    264,
+    1056,
+    1188
+  ],
+  "head_drops": [
+    0,
+    1,
+    2,
+    1,
+    0
+  ],
+  "demo_states_head_tail0": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      2
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      0,
+      4
+    ],
+    [
+      0,
+      0
+    ]
+  ],
+  "durations_ms": [
+    132,
+    132,
+    264,
+    264,
+    264,
+    132,
+    132,
+    264
+  ],
+  "apng_plays": 1,
+  "body_paws_reference": "current original idle phase; untouched by petting",
+  "source_hashes": {
+    "assets\\sprites\\fox\\idle\\frame_1.png": "e0c567c531a82212dd429356c54e8d958dcfad594ff552b666856e2f372f54ce",
+    "assets\\sprites\\fox\\idle\\frame_2.png": "ced5f073a7dd346f918cacc61fe67077ea553e6bf4927ff58767be023dbdd51a",
+    "assets\\sprites\\fox\\idle\\frame_3.png": "32a431b698e9bc8cf7fd276e571b5a4bcee0ea482b604de3fbb7dc1d1ccc1575",
+    "assets\\sprites\\fox\\idle\\frame_4.png": "6aa08628711c9b7687fc5550fceb6be8039e8ce927a8fa4a4be4c5a1b26a7e2c",
+    "assets\\sprites\\fox\\idle\\frame_5.png": "65158ebc74ed0f1c80db7d975bb3decd2d259787cd078d41804f3dccdab8c5e6"
+  }
+}

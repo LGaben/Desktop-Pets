@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import logging
 import sqlite3
+from contextlib import closing
 from datetime import datetime
 from pathlib import Path
 
-from utils.paths import data_dir
+from utils import paths
 
 _log = logging.getLogger(__name__)
 
@@ -41,13 +42,13 @@ _CREATE_ACHIEVEMENTS = """
 class PetDatabase:
     """SQLite-backed store for a single FullPet's state and achievements."""
 
-    def __init__(self) -> None:
-        self.db_path: Path = data_dir() / "pet_data.db"
+    def __init__(self, db_path: Path | str | None = None) -> None:
+        self.db_path = Path(db_path) if db_path is not None else paths.data_dir() / "pet_data.db"
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_schema()
 
     def _init_schema(self) -> None:
-        with sqlite3.connect(self.db_path) as conn:
+        with closing(sqlite3.connect(self.db_path)) as conn, conn:
             conn.execute(_CREATE_PET_STATE)
             conn.execute(_CREATE_ACHIEVEMENTS)
 
@@ -58,7 +59,7 @@ class PetDatabase:
     def save_pet(self, data: dict) -> None:
         """Atomically replace the single pet-state record."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with closing(sqlite3.connect(self.db_path)) as conn, conn:
                 conn.execute("DELETE FROM pet_state")
                 conn.execute(
                     """INSERT INTO pet_state
@@ -80,7 +81,7 @@ class PetDatabase:
     def load_pet(self) -> dict | None:
         """Return the stored pet-state dict, or None if the table is empty."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with closing(sqlite3.connect(self.db_path)) as conn, conn:
                 row = conn.execute(
                     "SELECT * FROM pet_state LIMIT 1"
                 ).fetchone()
@@ -112,7 +113,7 @@ class PetDatabase:
     def save_achievement(self, achievement_id: str, description: str) -> bool:
         """Insert a new achievement. Returns False if it already exists."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with closing(sqlite3.connect(self.db_path)) as conn, conn:
                 conn.execute(
                     """INSERT INTO achievements
                        (achievement_id, unlocked_date, description)
@@ -129,7 +130,7 @@ class PetDatabase:
     def get_achievements(self) -> list[dict]:
         """Return all unlocked achievements ordered by date."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with closing(sqlite3.connect(self.db_path)) as conn, conn:
                 rows = conn.execute(
                     "SELECT * FROM achievements ORDER BY unlocked_date"
                 ).fetchall()
@@ -145,7 +146,7 @@ class PetDatabase:
     def clear_data(self) -> None:
         """Delete all pet state and achievement records."""
         try:
-            with sqlite3.connect(self.db_path) as conn:
+            with closing(sqlite3.connect(self.db_path)) as conn, conn:
                 conn.execute("DELETE FROM pet_state")
                 conn.execute("DELETE FROM achievements")
         except sqlite3.Error as exc:

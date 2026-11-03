@@ -25,21 +25,22 @@ class HasStats(Protocol):
 class BallChaser(Protocol):
     """Protocol for pets that can chase a thrown ball."""
 
-    _carrying_ball: bool
+    carrying_ball: bool
 
     def chase(self, target_x: float, target_y: float) -> None: ...
     def stop_chase(self) -> None: ...
+    def cancel_chase(self) -> None: ...
 
 
 @runtime_checkable
 class MouseFollower(Protocol):
     """Protocol for pets that can autonomously track the mouse cursor."""
 
-    _follow_mouse: bool
-    _walk_target: object
+    following_mouse: bool
+
+    def set_follow_mouse(self, enabled: bool) -> None: ...
 
     def tick_mouse_check(self) -> None: ...
-    def change_state(self, new_state: str) -> None: ...
 
 
 @runtime_checkable

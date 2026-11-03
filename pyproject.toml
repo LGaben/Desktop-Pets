@@ -1,35 +1,44 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["setuptools==82.0.1", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "desktop-pet"
 version = "1.0.0"
 description = "A transparent always-on-top desktop virtual pet"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "PyQt5>=5.15.0",
-    "Pillow>=9.0.0",
-    "pynput>=1.7.6",
-    "plyer>=2.1.0",
+    "PyQt6==6.12.0",
+    "PyQt6-Qt6==6.12.0",
+    "PyQt6-sip==13.13.0",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest==9.1.1", "ruff==0.17.2", "pyinstaller==6.22.3"]
 
 [project.scripts]
 desktop-pet = "main:main"
 
+[tool.setuptools]
+py-modules = ["main"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+assets = ["icons/*.ico", "sprites/*/*/*.png", "sprites/*/*/*/*.png"]
+
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["pet*", "ui*", "utils*"]
+include = ["pet*", "ui*", "utils*", "assets*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "."]
+testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v"
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]

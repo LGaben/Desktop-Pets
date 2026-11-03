@@ -1,0 +1,119 @@
+{
+  "status": "candidate_pending_user_review",
+  "workflow": "user-authorized direct pixel edits; no generation/resizing of frame PNGs",
+  "source": "assets\\sprites\\fox\\idle\\frame_1.png",
+  "source_sha256": "e0c567c531a82212dd429356c54e8d958dcfad594ff552b666856e2f372f54ce",
+  "roi_exclusive": [
+    33,
+    17,
+    35,
+    19
+  ],
+  "changed_coordinates": [
+    [
+      33,
+      17
+    ],
+    [
+      34,
+      17
+    ]
+  ],
+  "donors_half": [
+    [
+      35,
+      17
+    ],
+    [
+      36,
+      17
+    ]
+  ],
+  "donor_closed": [
+    32,
+    17
+  ],
+  "alpha_exact_all_frames": true,
+  "outside_roi_exact_all_frames": true,
+  "first_last_rgba_exact_original": true,
+  "size_all_frames": [
+    46,
+    37
+  ],
+  "durations_ms": [
+    180,
+    90,
+    180,
+    260,
+    90,
+    300
+  ],
+  "frames": [
+    {
+      "frame": 1,
+      "changed_pixels": [],
+      "sha256": "3dd600bfb78c91e9161d0500d3a0292ddd812541be7b2bd0bb54a1c440f3bdbd"
+    },
+    {
+      "frame": 2,
+      "changed_pixels": [
+        [
+          33,
+          17
+        ],
+        [
+          34,
+          17
+        ]
+      ],
+      "sha256": "fe4f673e3784a80ce3be08ef0ae8cfc779b2133ef734038e315dd34ebdb3eda2"
+    },
+    {
+      "frame": 3,
+      "changed_pixels": [
+        [
+          33,
+          17
+        ],
+        [
+          34,
+          17
+        ]
+      ],
+      "sha256": "ca8ae73ee2abd92475f6e7ff0db0033b94debd5f93956c85a906bb87f7960a0d"
+    },
+    {
+      "frame": 4,
+      "changed_pixels": [
+        [
+          33,
+          17
+        ],
+        [
+          34,
+          17
+        ]
+      ],
+      "sha256": "ca8ae73ee2abd92475f6e7ff0db0033b94debd5f93956c85a906bb87f7960a0d"
+    },
+    {
+      "frame": 5,
+      "changed_pixels": [
+        [
+          33,
+          17
+        ],
+        [
+          34,
+          17
+        ]
+      ],
+      "sha256": "fe4f673e3784a80ce3be08ef0ae8cfc779b2133ef734038e315dd34ebdb3eda2"
+    },
+    {
+      "frame": 6,
+      "changed_pixels": [],
+      "sha256": "3dd600bfb78c91e9161d0500d3a0292ddd812541be7b2bd0bb54a1c440f3bdbd"
+    }
+  ]
+}

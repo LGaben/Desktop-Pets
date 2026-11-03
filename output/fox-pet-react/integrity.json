@@ -1,0 +1,14 @@
+{
+  "original_png_count_checked": 30,
+  "original_png_mismatches": [],
+  "html_static_links_checked": 8,
+  "html_missing_links": [],
+  "original_idle_js_resources_exist": true,
+  "exe_sha256_current": "9976225c2add1d6e495b32d6ece51afbe9137614d62730a37a839c809b5c28a0",
+  "exe_sha256_historical_report": "2342fa565d3eae8414c73f50e439a257219efdda045ba4dfa4c3d9817284119b",
+  "exe_matches_historical_report": false,
+  "exe_executed": false,
+  "exe_written_by_art_spike": false,
+  "browser_qa": "unavailable; no browser",
+  "runtime_tests": "not run; docs/artifacts only"
+}

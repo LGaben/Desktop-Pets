@@ -3,22 +3,11 @@ from __future__ import annotations
 
 import os
 import sys
-import tempfile
-from pathlib import Path
 
-import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
-@pytest.fixture
-def db(tmp_path, monkeypatch):
-    """Provide a PetDatabase backed by a temporary file."""
-    from utils import paths as _paths
-
-    monkeypatch.setattr(_paths, "data_dir", lambda: tmp_path)
-    from utils.database import PetDatabase
-    return PetDatabase()
 
 
 class TestPetDatabase:

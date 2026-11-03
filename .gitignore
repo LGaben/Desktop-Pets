@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Reproducible app build and local verification dependencies
+!DesktopPet.spec
+.test-deps/
+.wheel-check/
+.verification/
+.build-envs/
+dist-test-security-*/
+build-test-security-*/
+reports/verification/

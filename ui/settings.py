@@ -2,21 +2,23 @@ from __future__ import annotations
 
 import math
 
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QEasingCurve, QPoint, QPointF, QPropertyAnimation,
     QRect, QRectF, Qt, QTimer, pyqtProperty, pyqtSignal,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
     QColor, QFont, QLinearGradient,
     QPainter, QPainterPath, QPen, QPixmap,
 )
-from PyQt5.QtWidgets import (
-    QApplication, QFrame, QGraphicsDropShadowEffect,
+from PyQt6.QtWidgets import (
+    QFrame, QGraphicsDropShadowEffect,
     QGridLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QScrollArea, QVBoxLayout, QWidget,
 )
 
-from utils.i18n import t, get_lang, save_lang, save_pet
+from pet.catalog import PET_EMOJI as _PET_EMOJI, PET_TYPES
+from utils.geometry import available_rect
+from utils.i18n import get_lang, save_lang, t
 from utils.paths import resource_base
 
 # ---------------------------------------------------------------------------
@@ -32,37 +34,7 @@ _GRID_LINE = QColor(0, 200, 230, 40)
 _ACCENT_CYAN   = "#00e6ff"
 _ACCENT_ORANGE = "#ff9600"
 
-_PET_TYPES = [
-    "fox", "panda", "cockatiel",
-    "dog", "turtle", "totoro",
-    "chicken", "clippy", "crab", "deno", "horse",
-    "mod", "monkey", "morph", "rat", "rocky",
-    "rubber_duck", "skeleton", "snail", "snake", "zappy",
-]
-
-_PET_EMOJI: dict[str, str] = {
-    "fox":        "🦊",
-    "panda":      "🐼",
-    "cockatiel":  "🐦",
-    "dog":        "🐕",
-    "turtle":     "🐢",
-    "totoro":     "🐻",
-    "chicken":    "🐔",
-    "clippy":     "📎",
-    "crab":       "🦀",
-    "deno":       "🦕",
-    "horse":      "🐴",
-    "mod":        "🔮",
-    "monkey":     "🐒",
-    "morph":      "💜",
-    "rat":        "🐀",
-    "rocky":      "🪨",
-    "rubber_duck":"🦆",
-    "skeleton":   "💀",
-    "snail":      "🐌",
-    "snake":      "🐍",
-    "zappy":      "⚡",
-}
+_PET_TYPES = PET_TYPES
 
 _W, _H   = 420, 560
 _TITLE_H = 52
@@ -146,11 +118,11 @@ class GlowLabel(QLabel):
         blur: int = 14, tracking: int = 0,
     ) -> None:
         super().__init__(text)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         f = QFont(_FONT, size)
         f.setBold(bold)
         if tracking:
-            f.setLetterSpacing(QFont.PercentageSpacing, 100 + tracking)
+            f.setLetterSpacing(QFont.SpacingType.PercentageSpacing, 100 + tracking)
         self.setFont(f)
         self.setStyleSheet(f"color:{color.name()}; background:transparent;")
         shadow = QGraphicsDropShadowEffect(self)
@@ -180,20 +152,20 @@ class HologramCard(QFrame):
         self._wire_angle = 0.0
 
         self.setFixedSize(78, 88)
-        self.setCursor(Qt.PointingHandCursor)
-        self.setFrameShape(QFrame.NoFrame)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFrameShape(QFrame.Shape.NoFrame)
 
         col = QVBoxLayout(self)
         col.setContentsMargins(4, 6, 4, 4)
         col.setSpacing(2)
-        col.setAlignment(Qt.AlignCenter)
+        col.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self._img_label = QLabel()
-        self._img_label.setAlignment(Qt.AlignCenter)
-        self._img_label.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self._img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._img_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         if not pixmap.isNull():
             self._img_label.setPixmap(
-                pixmap.scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                pixmap.scaled(36, 36, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
             )
         else:
             self._img_label.setText("?")
@@ -201,12 +173,12 @@ class HologramCard(QFrame):
         col.addWidget(self._img_label)
 
         self._name_lbl = GlowLabel(display_name, _CYAN_DIM, 9, blur=7)
-        self._name_lbl.setAlignment(Qt.AlignCenter)
+        self._name_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         col.addWidget(self._name_lbl)
 
         self._hl_anim = QPropertyAnimation(self, b"hl")
         self._hl_anim.setDuration(220)
-        self._hl_anim.setEasingCurve(QEasingCurve.OutCubic)
+        self._hl_anim.setEasingCurve(QEasingCurve.Type.OutCubic)
 
     def set_display_name(self, name: str) -> None:
         self._name_lbl.setText(name)
@@ -215,7 +187,7 @@ class HologramCard(QFrame):
 
     def paintEvent(self, _) -> None:
         p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
         rc = QRectF(self.rect()).adjusted(2, 2, -2, -2)
 
         bar = QRectF(rc.x() + 8, rc.bottom() - 18, rc.width() - 16, 3)
@@ -228,7 +200,7 @@ class HologramCard(QFrame):
         grad.setColorAt(0.85, ca)
         grad.setColorAt(1.0, QColor(0, 0, 0, 0))
         p.setBrush(grad)
-        p.setPen(Qt.NoPen)
+        p.setPen(Qt.PenStyle.NoPen)
         p.drawRoundedRect(bar, 1, 1)
 
         for x_off in (0.2, 0.8):
@@ -245,16 +217,16 @@ class HologramCard(QFrame):
         r = rc.adjusted(margin, margin, -margin, -margin)
 
         pen = QPen(_ORANGE, 1.6)
-        pen.setStyle(Qt.DashLine)
+        pen.setStyle(Qt.PenStyle.DashLine)
         pen.setDashPattern([4, 3])
         pen.setDashOffset(self._wire_angle * 0.5)
         p.setPen(pen)
-        p.setBrush(Qt.NoBrush)
+        p.setBrush(Qt.BrushStyle.NoBrush)
         p.drawRoundedRect(r, 5, 5)
 
         bracket = 8
         pen2 = QPen(_ORANGE, 2.0)
-        pen2.setStyle(Qt.SolidLine)
+        pen2.setStyle(Qt.PenStyle.SolidLine)
         p.setPen(pen2)
         corners = [
             (r.left(), r.top(),     1,  1),
@@ -272,7 +244,7 @@ class HologramCard(QFrame):
     # -- events --------------------------------------------------------------
 
     def mousePressEvent(self, event) -> None:
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.clicked.emit(self.pet_type)
 
     # -- selection property --------------------------------------------------
@@ -302,7 +274,7 @@ def _draw_perspective_grid(p: QPainter, rect: QRect, time: float) -> None:
     w, h   = rect.width(), rect.height()
     cx     = w / 2
     bottom = float(h)
-    p.setRenderHint(QPainter.Antialiasing)
+    p.setRenderHint(QPainter.RenderHint.Antialiasing)
 
     for i in range(18):
         angle = math.radians(i * 20 + time * 0.3)
@@ -311,7 +283,7 @@ def _draw_perspective_grid(p: QPainter, rect: QRect, time: float) -> None:
         clr = QColor(_GRID_LINE)
         clr.setAlpha(int(25 + 20 * math.sin(angle + time)))
         pen = QPen(clr, 1)
-        pen.setStyle(Qt.DotLine if i % 2 else Qt.SolidLine)
+        pen.setStyle(Qt.PenStyle.DotLine if i % 2 else Qt.PenStyle.SolidLine)
         p.setPen(pen)
         p.drawLine(QPointF(cx, bottom), QPointF(cx + dx, bottom + dy))
 
@@ -320,12 +292,12 @@ def _draw_perspective_grid(p: QPainter, rect: QRect, time: float) -> None:
         y  = bottom - tv * h * 0.78 + 8 * math.sin(time + i * 0.5)
         alpha = max(5, int(45 * (1 - tv)))
         pen = QPen(QColor(0, 200, 230, alpha), 1)
-        pen.setStyle(Qt.DotLine if i % 3 == 0 else Qt.SolidLine)
+        pen.setStyle(Qt.PenStyle.DotLine if i % 3 == 0 else Qt.PenStyle.SolidLine)
         p.setPen(pen)
         spread = w * 0.15 + w * 0.35 * (1 - tv)
         p.drawLine(QPointF(cx - spread, y), QPointF(cx + spread, y))
 
-    p.setBrush(Qt.NoBrush)
+    p.setBrush(Qt.BrushStyle.NoBrush)
     for r in [4, 8, 14]:
         p.setPen(QPen(QColor(0, 230, 255, max(5, 40 - r * 2)), 1))
         p.drawEllipse(QPointF(cx, bottom), r, r)
@@ -351,19 +323,19 @@ class SettingsWindow(QWidget):
 
         self._anim_timer = QTimer(self)
         self._anim_timer.timeout.connect(self._tick_anim)
-        self._anim_timer.start(50)
+        # Started by showEvent; hidden settings consume no animation ticks.
 
         self._build()
 
     # -- construction --------------------------------------------------------
 
     def _build(self) -> None:
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setFixedSize(_W, _H)
         self.setStyleSheet(_CSS)
 
-        scr = QApplication.desktop().availableGeometry()
+        scr = available_rect(self.pet_window.pos() if self.pet_window else QPoint(0, 0))
         self.move(
             scr.left() + (scr.width()  - _W) // 2,
             scr.top()  + (scr.height() - _H) // 2,
@@ -413,8 +385,8 @@ class SettingsWindow(QWidget):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFixedHeight(190)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
 
         inner = QWidget()
         inner.setStyleSheet("background:transparent;")
@@ -452,6 +424,7 @@ class SettingsWindow(QWidget):
         col.addSpacing(5)
 
         self.name_input = QLineEdit(self.pet.name)
+        self.name_input.setMaxLength(80)
         self.name_input.setPlaceholderText(t("sw_name_ph"))
         self.name_input.setFixedHeight(38)
         col.addWidget(self.name_input)
@@ -467,13 +440,13 @@ class SettingsWindow(QWidget):
 
         self._lang_ru_btn = QPushButton(t("sw_lang_ru"))
         self._lang_ru_btn.setFixedHeight(34)
-        self._lang_ru_btn.setCursor(Qt.PointingHandCursor)
+        self._lang_ru_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._lang_ru_btn.clicked.connect(lambda: self._set_language("ru"))
         lang_row.addWidget(self._lang_ru_btn)
 
         self._lang_en_btn = QPushButton(t("sw_lang_en"))
         self._lang_en_btn.setFixedHeight(34)
-        self._lang_en_btn.setCursor(Qt.PointingHandCursor)
+        self._lang_en_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._lang_en_btn.clicked.connect(lambda: self._set_language("en"))
         lang_row.addWidget(self._lang_en_btn)
 
@@ -496,8 +469,8 @@ class SettingsWindow(QWidget):
         pets_scroll.setWidget(self._pets_container)
         pets_scroll.setWidgetResizable(True)
         pets_scroll.setFixedHeight(96)
-        pets_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        pets_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        pets_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        pets_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         col.addWidget(pets_scroll)
         self._rebuild_pets_section()
 
@@ -509,14 +482,14 @@ class SettingsWindow(QWidget):
 
         self._cancel_btn = QPushButton(t("sw_cancel"))
         self._cancel_btn.setObjectName("cancel")
-        self._cancel_btn.setCursor(Qt.PointingHandCursor)
+        self._cancel_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._cancel_btn.clicked.connect(self._close_animated)
         self._cancel_btn.setFixedHeight(38)
         btn_row.addWidget(self._cancel_btn)
 
         self._add_btn = QPushButton(t("sw_add_pet"))
         self._add_btn.setObjectName("add_pet_btn_main")
-        self._add_btn.setCursor(Qt.PointingHandCursor)
+        self._add_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._add_btn.clicked.connect(
             lambda: self._add_satellite_from_settings(self._selected_type)
         )
@@ -525,7 +498,7 @@ class SettingsWindow(QWidget):
 
         self._apply_btn = QPushButton(t("sw_apply"))
         self._apply_btn.setObjectName("apply")
-        self._apply_btn.setCursor(Qt.PointingHandCursor)
+        self._apply_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._apply_btn.clicked.connect(self._apply)
         self._apply_btn.setFixedHeight(38)
         btn_row.addWidget(self._apply_btn)
@@ -537,7 +510,7 @@ class SettingsWindow(QWidget):
 
     def paintEvent(self, _) -> None:
         p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
         rc = self.rect().adjusted(0, 0, -1, -1)
 
         path = QPainterPath()
@@ -547,16 +520,16 @@ class SettingsWindow(QWidget):
 
         if self._grid_cache is None or self._grid_cache.size() != self.size():
             self._grid_cache = QPixmap(self.size())
-            self._grid_cache.fill(Qt.transparent)
+            self._grid_cache.fill(Qt.GlobalColor.transparent)
             gp = QPainter(self._grid_cache)
-            gp.setRenderHint(QPainter.Antialiasing)
+            gp.setRenderHint(QPainter.RenderHint.Antialiasing)
             _draw_perspective_grid(gp, rc, self._anim_time)
             gp.end()
         p.drawPixmap(0, 0, self._grid_cache)
 
         for w, alpha in [(3, 60), (2, 120), (1, 200)]:
             p.setPen(QPen(QColor(0, 210, 240, alpha), w))
-            p.setBrush(Qt.NoBrush)
+            p.setBrush(Qt.BrushStyle.NoBrush)
             p.drawRoundedRect(QRectF(rc), _RADIUS, _RADIUS)
 
     # -- animation -----------------------------------------------------------
@@ -577,6 +550,8 @@ class SettingsWindow(QWidget):
     def showEvent(self, event) -> None:
         super().showEvent(event)
         self._closing = False
+        self._stop_animations(delete=True)
+        self._anim_timer.start(50)
         self._grid_cache = None
         target = self.pos()
 
@@ -584,16 +559,35 @@ class SettingsWindow(QWidget):
         self._anim_fade.setDuration(260)
         self._anim_fade.setStartValue(0.0)
         self._anim_fade.setEndValue(1.0)
-        self._anim_fade.setEasingCurve(QEasingCurve.OutCubic)
+        self._anim_fade.setEasingCurve(QEasingCurve.Type.OutCubic)
 
         self._anim_slide = QPropertyAnimation(self, b"pos", self)
         self._anim_slide.setDuration(260)
         self._anim_slide.setStartValue(target + QPoint(0, 16))
         self._anim_slide.setEndValue(target)
-        self._anim_slide.setEasingCurve(QEasingCurve.OutCubic)
+        self._anim_slide.setEasingCurve(QEasingCurve.Type.OutCubic)
 
         self._anim_fade.start()
         self._anim_slide.start()
+
+    def _stop_animations(self, delete: bool = False) -> None:
+        for name in ("_anim_fade", "_anim_slide", "_anim_out"):
+            animation = getattr(self, name, None)
+            if animation:
+                animation.stop()
+                if delete:
+                    animation.deleteLater()
+                    setattr(self, name, None)
+
+    def hideEvent(self, event) -> None:
+        self._anim_timer.stop()
+        self._stop_animations()
+        super().hideEvent(event)
+
+    def closeEvent(self, event) -> None:
+        self._anim_timer.stop()
+        self._stop_animations()
+        super().closeEvent(event)
 
     def _close_animated(self) -> None:
         if self._closing:
@@ -603,7 +597,7 @@ class SettingsWindow(QWidget):
         anim.setDuration(180)
         anim.setStartValue(self.windowOpacity())
         anim.setEndValue(0.0)
-        anim.setEasingCurve(QEasingCurve.InCubic)
+        anim.setEasingCurve(QEasingCurve.Type.InCubic)
         anim.finished.connect(self._anim_timer.stop)
         anim.finished.connect(self.close)
         self._anim_out = anim
@@ -612,12 +606,12 @@ class SettingsWindow(QWidget):
     # -- drag ----------------------------------------------------------------
 
     def mousePressEvent(self, event) -> None:
-        if event.button() == Qt.LeftButton:
-            self._drag_pos = event.globalPos() - self.pos()
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._drag_pos = event.globalPosition().toPoint() - self.pos()
 
     def mouseMoveEvent(self, event) -> None:
-        if self._drag_pos and event.buttons() == Qt.LeftButton:
-            self.move(event.globalPos() - self._drag_pos)
+        if self._drag_pos and event.buttons() == Qt.MouseButton.LeftButton:
+            self.move(event.globalPosition().toPoint() - self._drag_pos)
 
     def mouseReleaseEvent(self, _) -> None:
         self._drag_pos = None
@@ -631,9 +625,9 @@ class SettingsWindow(QWidget):
             f" font-weight:bold; font-size:12px; letter-spacing:1px; padding:0;"
         )
         off = (
-            f"color:rgba(0,180,210,90); border:1px solid rgba(0,180,210,45);"
-            f" background:rgba(0,230,255,4); border-radius:8px;"
-            f" font-weight:bold; font-size:12px; letter-spacing:1px; padding:0;"
+            "color:rgba(0,180,210,90); border:1px solid rgba(0,180,210,45);"
+            " background:rgba(0,230,255,4); border-radius:8px;"
+            " font-weight:bold; font-size:12px; letter-spacing:1px; padding:0;"
         )
         self._lang_ru_btn.setStyleSheet(on if active == "ru" else off)
         self._lang_en_btn.setStyleSheet(on if active == "en" else off)
@@ -641,10 +635,10 @@ class SettingsWindow(QWidget):
     def _set_language(self, lang: str) -> None:
         if lang == get_lang():
             return
-        save_lang(lang)          # sets _current_lang + persists to registry
+        save_lang(lang)          # updates the settings store and persists immediately
         primary = self._get_primary_window()
         if primary:
-            primary.tray.setContextMenu(primary._build_tray_menu())
+            primary.tray_manager.rebuild_menu()
         self._refresh_text()
 
     def _refresh_text(self) -> None:
@@ -689,7 +683,7 @@ class SettingsWindow(QWidget):
         satellites = self._get_satellites()
         if not satellites:
             lbl = QLabel(t("sw_no_extra"))
-            lbl.setAlignment(Qt.AlignCenter)
+            lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
             lbl.setStyleSheet(
                 "color:rgba(0,180,210,55); font-size:11px; background:transparent;"
             )
@@ -704,7 +698,9 @@ class SettingsWindow(QWidget):
             row_lay.setSpacing(8)
 
             emoji = _PET_EMOJI.get(sat.pet.pet_type, "🐾")
-            name_lbl = QLabel(f"{emoji}  {sat.pet.name}")
+            name_lbl = QLabel()
+            name_lbl.setTextFormat(Qt.TextFormat.PlainText)
+            name_lbl.setText(f"{emoji}  {sat.pet.name}")
             name_lbl.setStyleSheet(
                 f"color:{_ACCENT_CYAN}; font-size:12px; background:transparent;"
             )
@@ -714,7 +710,7 @@ class SettingsWindow(QWidget):
             rm_btn = QPushButton(t("remove_pet"))
             rm_btn.setObjectName("rm")
             rm_btn.setFixedHeight(24)
-            rm_btn.setCursor(Qt.PointingHandCursor)
+            rm_btn.setCursor(Qt.CursorShape.PointingHandCursor)
             rm_btn.clicked.connect(lambda checked=False, s=sat: self._remove_satellite(s))
             row_lay.addWidget(rm_btn)
 
@@ -741,10 +737,12 @@ class SettingsWindow(QWidget):
         if self.pet_window:
             if new_type != self.pet.pet_type:
                 self.pet_window.set_pet_type(new_type, new_name)
-                save_pet(new_type)
+                self.pet_window.persist_state(replace_corrupt=True)
+                return
             elif new_name != self.pet.name:
                 self.pet.name = new_name
-                self.pet.save_state()
+        if self.pet_window:
+            self.pet_window.persist_state(replace_corrupt=True)
         self._close_animated()
 
 

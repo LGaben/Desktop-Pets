@@ -8,39 +8,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QAction, QApplication, QMenu, QSystemTrayIcon
+from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 from pet.factory import PetFactory
+from ui.menu_style import add_menu_style
+from ui.menu_visuals import action_icon, menu_stylesheet
 from utils.i18n import t
 from utils.paths import resource_base
 
 if TYPE_CHECKING:
     from ui.pet_window import PetWindow
-
-_PET_EMOJI: dict[str, str] = {
-    "fox":         "🦊",
-    "panda":       "🐼",
-    "cockatiel":   "🐦",
-    "dog":         "🐕",
-    "turtle":      "🐢",
-    "totoro":      "🐻",
-    "chicken":     "🐔",
-    "clippy":      "📎",
-    "crab":        "🦀",
-    "deno":        "🦕",
-    "horse":       "🐴",
-    "mod":         "🔮",
-    "monkey":      "🐒",
-    "morph":       "💜",
-    "rat":         "🐀",
-    "rocky":       "🪨",
-    "rubber_duck": "🦆",
-    "skeleton":    "💀",
-    "snail":       "🐌",
-    "snake":       "🐍",
-    "zappy":       "⚡",
-}
 
 
 class TrayManager:
@@ -73,7 +51,11 @@ class TrayManager:
 
     def rebuild_menu(self) -> None:
         """Reconstruct and install the context menu from current state."""
-        self.tray.setContextMenu(self._build_menu())
+        previous = self.tray.contextMenu()
+        self._menu = self._build_menu()
+        self.tray.setContextMenu(self._menu)
+        if previous is not None:
+            previous.deleteLater()
 
     def update_tooltip(self, name: str) -> None:
         """Sync the tray tooltip after a pet name change."""
@@ -91,7 +73,7 @@ class TrayManager:
         self.tray.showMessage(
             t("tray_hide_title"),
             t("tray_hide_msg"),
-            QSystemTrayIcon.Information,
+            QSystemTrayIcon.MessageIcon.Information,
             2000,
         )
 
@@ -106,20 +88,20 @@ class TrayManager:
         )
 
     def _on_activated(self, reason: int) -> None:
-        if reason == QSystemTrayIcon.DoubleClick:
+        if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
             self._window._toggle_visibility()
 
     def _build_menu(self) -> QMenu:
         w = self._window
         menu = QMenu()
+        menu.setStyleSheet(menu_stylesheet())
 
-        emoji = _PET_EMOJI.get(w.pet.pet_type, "🐾")
-        info = QAction(f"{emoji} {w.pet.name}", menu)
+        info = QAction(w.pet.name, menu)
         info.setEnabled(False)
         menu.addAction(info)
         menu.addSeparator()
 
-        self._tray_toggle_action = QAction(t("hide_pet"), menu)
+        self._tray_toggle_action = QAction(t("hide_pet") if w.isVisible() else t("show_pet"), menu)
         self._tray_toggle_action.triggered.connect(w._toggle_visibility)
         menu.addAction(self._tray_toggle_action)
 
@@ -129,13 +111,24 @@ class TrayManager:
         menu.addAction(hide_all)
 
         settings_action = QAction(t("settings"), menu)
+        settings_action.setIcon(action_icon(t('settings')))
         settings_action.triggered.connect(w._show_settings)
         menu.addAction(settings_action)
+        add_menu_style(menu, w)
+
+        pets_menu = menu.addMenu(t('pets_actions'))
+        for index, window in enumerate([w] + w._satellites, 1):
+            if window._disposed:
+                continue
+            pet_menu = pets_menu.addMenu(f'{index}. {window.pet.name}')
+            for label, callback in window._interaction_actions():
+                action = pet_menu.addAction(action_icon(label), label)
+                action.triggered.connect(
+                    lambda checked=False, target=window, action=callback: target._activate_tray_action(action))
 
         add_menu = QMenu(t("add_pet"), menu)
         for pt in PetFactory.available_types():
-            emoji_pt = _PET_EMOJI.get(pt, "🐾")
-            action = QAction(f"{emoji_pt} {t(f'card_{pt}')}", menu)
+            action = QAction(t(f'card_{pt}'), menu)
             action.triggered.connect(lambda checked=False, p=pt: w._add_satellite(p))
             add_menu.addAction(action)
         menu.addMenu(add_menu)

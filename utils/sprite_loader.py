@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import logging
+import re
+from collections import OrderedDict
 from pathlib import Path
-from typing import Dict, List
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QPainter, QPixmap
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor, QPainter, QPixmap, QTransform
+
+from PyQt6.QtWidgets import QApplication
 
 from utils.paths import resource_base
 
@@ -30,11 +33,25 @@ _PLACEHOLDER_COLORS: dict[str, QColor] = {
 }
 
 
+def natural_frame_key(path: Path) -> tuple:
+    return tuple((1, int(part)) if part.isdigit() else (0, part.lower())
+                 for part in re.split(r"(\d+)", path.name))
+
+
 class SpriteLoader:
     """Loads and caches animation frames for a single pet type.
 
     Frames are loaded from ``assets/sprites/{pet_type}/{animation}/frame_*.png``.
     """
+
+    # LRU holds at most 128 animation/direction sets. Live loaders retain their
+    # own references; eviction never invalidates sprites currently being shown.
+    _shared = OrderedDict()
+    _cache_limit = 128
+
+    @classmethod
+    def clear_cache(cls) -> None:
+        cls._shared.clear()
 
     def __init__(
         self,
@@ -44,16 +61,30 @@ class SpriteLoader:
         self.pet_type = pet_type
         self.base_path: Path = resource_base() / "assets" / "sprites" / pet_type
         self._animations: list[str] = animations if animations is not None else list(_DEFAULT_ANIMATIONS)
-        self.sprites_cache: Dict[str, List[QPixmap]] = {}
-        self._preload()
+        self.sprites_cache: dict[tuple[str, bool], list[QPixmap]] = {}
+        # Load lazily: constructing a loader requires no QApplication.
 
     # -- public API -----------------------------------------------------------
 
-    def get_animation(self, animation_name: str) -> List[QPixmap]:
+    def get_animation(self, animation_name: str, mirrored: bool = False) -> list[QPixmap]:
         """Return cached frames, loading them lazily when not yet cached."""
-        if animation_name not in self.sprites_cache:
-            self.sprites_cache[animation_name] = self._load_animation(animation_name)
-        return self.sprites_cache[animation_name]
+        if QApplication.instance() is None:
+            raise RuntimeError("Create QApplication before requesting sprite frames")
+        local_key = (animation_name, mirrored)
+        if local_key not in self.sprites_cache:
+            key = (str(self.base_path.resolve()), animation_name, mirrored)
+            if key not in self._shared:
+                if mirrored:
+                    frames = [frame.transformed(QTransform().scale(-1, 1))
+                              for frame in self.get_animation(animation_name)]
+                else:
+                    frames = self._load_animation(animation_name)
+                self._shared[key] = frames
+                while len(self._shared) > self._cache_limit:
+                    self._shared.popitem(last=False)
+            self._shared.move_to_end(key)
+            self.sprites_cache[local_key] = self._shared[key]
+        return self.sprites_cache[local_key]
 
     def set_pet_type(self, new_pet_type: str) -> None:
         self.pet_type = new_pet_type
@@ -62,18 +93,13 @@ class SpriteLoader:
 
     # -- private helpers ------------------------------------------------------
 
-    def _preload(self) -> None:
-        for name in self._animations:
-            self.sprites_cache[name] = self._load_animation(name)
-
     def _reload(self) -> None:
         self.sprites_cache.clear()
-        self._preload()
 
-    def _load_animation(self, animation_name: str) -> List[QPixmap]:
+    def _load_animation(self, animation_name: str) -> list[QPixmap]:
         anim_path = self.base_path / animation_name
         if anim_path.exists():
-            frames = [QPixmap(str(f)) for f in sorted(anim_path.glob("*.png"))]
+            frames = [QPixmap(str(f)) for f in sorted(anim_path.glob("*.png"), key=natural_frame_key)]
             valid = [p for p in frames if not p.isNull()]
             if valid:
                 return [self._normalise(p) for p in valid]
@@ -87,20 +113,20 @@ class SpriteLoader:
             return px
         return px.scaled(
             _SPRITE_SIZE, _SPRITE_SIZE,
-            Qt.KeepAspectRatio,
-            Qt.SmoothTransformation,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
         )
 
     def _create_placeholder(self, animation_name: str = "idle") -> QPixmap:
         pixmap = QPixmap(64, 64)
-        pixmap.fill(Qt.transparent)
+        pixmap.fill(Qt.GlobalColor.transparent)
         painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         color = _PLACEHOLDER_COLORS.get(animation_name, QColor(150, 150, 150))
         painter.setBrush(color)
-        painter.setPen(Qt.black)
+        painter.setPen(Qt.GlobalColor.black)
         painter.drawEllipse(16, 16, 32, 32)
-        painter.setBrush(Qt.black)
+        painter.setBrush(Qt.GlobalColor.black)
         if animation_name == "sleep":
             painter.drawEllipse(22, 28, 4, 2)
             painter.drawEllipse(38, 28, 4, 2)

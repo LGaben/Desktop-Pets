@@ -5,14 +5,14 @@ from __future__ import annotations
 import logging
 import random
 from datetime import datetime
-from typing import TYPE_CHECKING
 
-from PyQt5.QtCore import QPoint, QTimer
-from PyQt5.QtGui import QPixmap, QTransform
+from PyQt6.QtCore import QPoint, QTimer
+from PyQt6.QtGui import QPixmap
 
 from pet.base_pet import BasePet
 from pet.protocols import PetStorage
 from pet.state import PetState
+from utils.geometry import movement_bounds
 from utils.sprite_loader import SpriteLoader
 
 _log = logging.getLogger(__name__)
@@ -58,6 +58,11 @@ class FullPet(BasePet):
         self.animation_speed = 5
         self.frame_counter = 0
         self.walk_distance = 0
+        self._action_timer = QTimer()
+        self._action_timer.setSingleShot(True)
+        self._action_timer.timeout.connect(lambda: self.change_state(PetState.IDLE))
+        self._action_remaining = 0
+        self._motion_x = None
 
         # Deferred import avoids circular dependencies at module load time.
         if db is None:
@@ -138,32 +143,30 @@ class FullPet(BasePet):
         self.facing_right = direction > 0
         self.walk_distance = random.randint(50, 200)
 
-    def get_next_position(self) -> QPoint:
-        """Advance position by one frame, bouncing off screen edges."""
+    def get_next_position(self, dt: float = 0.033) -> QPoint:
         if not self.is_moving:
             return self.position
-
-        new_pos = self.position + self.velocity
-        screen_width = self._screen_width()
-
-        if new_pos.x() < 0:
-            new_pos.setX(0)
+        ticks = max(0.0, min(dt, 0.1)) / 0.033
+        if self._motion_x is None or round(self._motion_x) != self.position.x():
+            self._motion_x = float(self.position.x())
+        rect = movement_bounds(self.position, self.window_size)
+        step = self.velocity.x() * ticks
+        self._motion_x += step
+        if self._motion_x < rect.left() or self._motion_x > rect.right():
+            self._motion_x = max(rect.left(), min(self._motion_x, rect.right()))
             self.velocity.setX(-self.velocity.x())
-            self.facing_right = not self.facing_right
-        elif new_pos.x() > screen_width - 128:
-            new_pos.setX(screen_width - 128)
-            self.velocity.setX(-self.velocity.x())
-            self.facing_right = not self.facing_right
-
-        self.position = new_pos
-        self.walk_distance -= abs(self.velocity.x())
+            self.facing_right = self.velocity.x() > 0
+        self.position = QPoint(round(self._motion_x),
+                               max(rect.top(), min(self.position.y(), rect.bottom())))
+        self.walk_distance -= abs(step)
         if self.walk_distance <= 0:
             self.change_state(PetState.IDLE)
-
         return self.position
 
     def change_state(self, new_state: PetState) -> None:
         """Transition to a new state, resetting animation counters."""
+        self._action_timer.stop()
+        self._action_remaining = 0
         self.state = new_state
         self.current_frame = 0
         self.frame_counter = 0
@@ -171,21 +174,17 @@ class FullPet(BasePet):
 
     # -- animation ------------------------------------------------------------
 
-    def get_current_sprite(self) -> QPixmap | None:
+    def get_current_sprite(self, dt: float = 0.033) -> QPixmap | None:
         """Return the current animation frame, mirrored when facing left."""
-        sprites = self.sprite_loader.get_animation(self.state.value)
+        sprites = self.sprite_loader.get_animation(self.state.value, mirrored=not self.facing_right)
         if not sprites:
             return None
 
-        self.frame_counter += 1
-        if self.frame_counter >= self.animation_speed:
-            self.frame_counter = 0
-            self.current_frame = (self.current_frame + 1) % len(sprites)
+        self.frame_counter += max(0.0, min(dt, 0.1)) / 0.033
+        frames, self.frame_counter = divmod(self.frame_counter, self.animation_speed)
+        self.current_frame = (self.current_frame + int(frames)) % len(sprites)
 
-        sprite = sprites[self.current_frame]
-        if not self.facing_right:
-            sprite = sprite.transformed(QTransform().scale(-1, 1))
-        return sprite
+        return sprites[self.current_frame]
 
     # -- interactions ---------------------------------------------------------
 
@@ -195,7 +194,7 @@ class FullPet(BasePet):
         self.hunger = min(100.0, self.hunger + 30.0)
         self.happiness = min(100.0, self.happiness + 10.0)
         self.add_exp(5)
-        QTimer.singleShot(3000, lambda: self.change_state(PetState.IDLE))
+        self._action_timer.start(3000)
 
     def play(self) -> None:
         """Trigger the play animation and boost happiness."""
@@ -203,7 +202,7 @@ class FullPet(BasePet):
         self.happiness = min(100.0, self.happiness + 20.0)
         self.energy = max(0.0, self.energy - 10.0)
         self.add_exp(10)
-        QTimer.singleShot(5000, lambda: self.change_state(PetState.IDLE))
+        self._action_timer.start(5000)
 
     def sleep(self) -> None:
         """Enter the sleeping state."""
@@ -213,10 +212,11 @@ class FullPet(BasePet):
         """Exit sleep and return to idle."""
         self.change_state(PetState.IDLE)
 
-    def pet_action(self) -> None:
+    def pet_action(self) -> bool:
         """Grant small happiness and exp on left-click."""
         self.happiness = min(100.0, self.happiness + 5.0)
         self.add_exp(2)
+        return True
 
     def add_exp(self, amount: int) -> None:
         """Add experience points and check for a level-up."""
@@ -297,6 +297,17 @@ class FullPet(BasePet):
         except ValueError:
             _log.warning("Could not parse last_save timestamp: %s", last_save_str)
 
-    def _screen_width(self) -> int:
-        from PyQt5.QtWidgets import QApplication
-        return QApplication.desktop().screenGeometry().width()
+    def pause(self) -> None:
+        if self._action_timer.isActive():
+            self._action_remaining = max(1, self._action_timer.remainingTime())
+            self._action_timer.stop()
+
+    def resume(self) -> None:
+        if self._action_remaining:
+            self._action_timer.start(self._action_remaining)
+            self._action_remaining = 0
+
+    def cleanup(self) -> None:
+        self._action_timer.stop()
+        self._action_timer.deleteLater()
+        self._action_remaining = 0

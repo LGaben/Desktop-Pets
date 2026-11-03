@@ -1,0 +1,61 @@
+{
+  "source_hashes_all_30_exact": true,
+  "poses": 15,
+  "demo_pngs": 8,
+  "size": [
+    46,
+    37
+  ],
+  "neck_and_left_edge_regression_all_poses_apng": true,
+  "actual_bad_pngs_fail_regression": true,
+  "complete_head_rgba_translated_all_phases": true,
+  "outside_head_roi_and_paws_exact_current_idle_phase": true,
+  "head0_exact_current_original_all_5_phases": true,
+  "demo_tail_phase_at_every_timestamp_exact": true,
+  "tail_cadence_ms": 264,
+  "source_neighbor_rgba_changes": [
+    282,
+    197,
+    265,
+    258,
+    240
+  ],
+  "apng": {
+    "1": {
+      "frames": 8,
+      "plays": 1,
+      "durations_ms": [
+        132.0,
+        132.0,
+        264.0,
+        264.0,
+        264.0,
+        132.0,
+        132.0,
+        264.0
+      ],
+      "total_ms": 1584,
+      "decoded_exact": true
+    },
+    "8": {
+      "frames": 8,
+      "plays": 1,
+      "durations_ms": [
+        132.0,
+        132.0,
+        264.0,
+        264.0,
+        264.0,
+        132.0,
+        132.0,
+        264.0
+      ],
+      "total_ms": 1584,
+      "decoded_exact": true
+    }
+  },
+  "static_links_valid": 14,
+  "browser_qa": "unavailable",
+  "motion_logic_check": "run node v4/verify_motion.js separately",
+  "exe_current_sha256": "da4e854251f97ae8ed25c541f7ce2b61a28b923a978ca6874c5b8baae6c39170"
+}

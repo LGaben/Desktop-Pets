@@ -1,0 +1,98 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><title>Лиса v4 — реакция на поглаживание</title>
+<style>body{font:16px system-ui;margin:24px;background:#e9edf1;color:#18202a;max-width:1200px}h1{font-size:24px}.notice{padding:16px;background:#fff1cd;border-left:5px solid #9a6710}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.panel{padding:16px;border:1px solid #aab4c0;background:white}.dark{background:#20252c;color:white}canvas,img{image-rendering:pixelated}canvas{display:block;margin:12px 0}button{padding:8px 16px}label{margin-right:16px}.sheet{max-width:100%;height:auto}a{color:#155bbb}</style>
+<h1>Лиса v4: реакция на поглаживание</h1>
+<p class="notice"><strong>Кандидат для художественного просмотра.</strong> «Погладить» опускает голову и прикрывает глаз. Хвост продолжает обычный исходный idle с той же скоростью и фазой: поглаживание не останавливает и не перезапускает его.</p>
+<p>Голова движется на 1–2 исходных пикселя. Уши следуют за головой. Тело и лапы сохраняют исходную idle-позу текущего кадра. Пробник не подключён к программе.</p>
+<p><button id="pet" type="button">Погладить</button> <button id="toggle" type="button">Пауза</button> <label><input id="mirror" type="checkbox"> Влево (зеркало)</label></p>
+<p><label><input id="referenceplay" type="checkbox" checked> Проигрывать оригинальный idle слева</label> <output id="counter"></output></p>
+<div class="grid"><div class="panel"><h2>Оригинальный idle</h2><p>Исходный цикл 1→2→3→4→5, 264 мс на кадр.</p><canvas id="original1" width="46" height="37"></canvas><canvas id="original6" width="276" height="222"></canvas></div><div class="panel"><h2>v4 — светлый фон</h2><p>46 × 37 и 6× nearest-neighbor</p><canvas id="candidate1" width="46" height="37"></canvas><canvas id="candidate6" width="276" height="222"></canvas></div><div class="panel dark"><h2>v4 — тёмный фон</h2><p>Непрерывный хвост и реакция головы</p><canvas id="dark1" width="46" height="37"></canvas><canvas id="dark6" width="276" height="222"></canvas></div></div>
+<p id="status">Загрузка изображений…</p>
+<p><a href="v4/contact-sheet.png">Все 15 сочетаний головы и хвоста</a> · <a href="v4/pet-react-1x.apng">APNG 1× — один пример жеста</a> · <a href="v4/pet-react-8x.apng">APNG 8× — один пример жеста</a> · <a href="v4/verification.json">Проверки и тайминг</a> · <a href="v4/build_preview.py">Сборка</a> · <a href="v4/original-reference-sheet.png">Оригинальные idle/lie/walk</a></p>
+<p>APNG показывает один жест с непрерывными исходными фазами хвоста; после конца файл останавливается. В интерактивном просмотре выше обычный idle продолжается.</p>
+<details><summary>Контактный лист v4</summary><img class="sheet" src="v4/contact-sheet.png" alt="Три положения головы для каждой из пяти исходных фаз хвоста"></details>
+<details><summary>Архив отвергнутых проб</summary><p><a href="v3/contact-sheet.png">v3: только моргание</a> · <a href="pet-react-candidate-v1.png">v1</a> · <a href="pet-react-keyframe-v2.png">v2</a></p></details>
+<p><a href="REVIEW.md">Разбор и статус</a> · <a href="original-audit.json">Аудит оригиналов</a> · <a href="provenance.json">История генераций</a></p>
+<p>Браузерная проверка недоступна; изображения и логика времени проверены отдельно. Художественное принятие ожидается.</p>
+<script src="v4/motion.js?revision=continuous-tail-20261026"></script>
+<script>
+const originals = Array.from({length: 5}, (_, i) => {
+  const image = new Image();
+  image.src = `../../assets/sprites/fox/idle/frame_${i + 1}.png`;
+  return image;
+});
+const poses = Array.from({length: 3}, (_, head) => Array.from({length: 5}, (_, phase) => {
+  const image = new Image();
+  image.src = `v4/poses/head_${head}_tail_${phase + 1}.png?revision=continuous-tail-20261026`;
+  return image;
+}));
+const motion = FoxMotion.create();
+let playing = true;
+let last = performance.now();
+let referenceElapsed = 0;
+const button = document.querySelector('#toggle');
+const petButton = document.querySelector('#pet');
+
+function advanceTo(time) {
+  if (playing) {
+    const delta = Math.max(0, time - last);
+    FoxMotion.advance(motion, delta);
+    if (document.querySelector('#referenceplay').checked) referenceElapsed += delta;
+  }
+  last = Math.max(last, time);
+}
+function paint(ids, image) {
+  if (!image.naturalWidth) return;
+  for (const id of ids) {
+    const canvas = document.getElementById(id);
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.save();
+    context.imageSmoothingEnabled = false;
+    if (document.querySelector('#mirror').checked) {
+      context.translate(canvas.width, 0);
+      context.scale(-1, 1);
+    }
+    context.drawImage(image, 0, 0, 46, 37, 0, 0, canvas.width, canvas.height);
+    context.restore();
+  }
+}
+function render() {
+  const pose = FoxMotion.pose(motion);
+  paint(['original1', 'original6'], originals[Math.floor(referenceElapsed / FoxMotion.tailMs) % 5]);
+  const current = pose.head === 0 ? originals[pose.phase] : poses[pose.head][pose.phase];
+  paint(['candidate1', 'candidate6', 'dark1', 'dark6'], current);
+  button.textContent = playing ? 'Пауза' : 'Продолжить просмотр';
+  petButton.disabled = pose.reacting;
+  document.querySelector('#counter').textContent = `idle ${pose.phase + 1}/5 · голова +${pose.head}px · ${playing ? 'просмотр' : 'пауза'}`;
+  if ([...originals, ...poses.flat()].every(image => image.naturalWidth === 46 && image.naturalHeight === 37)) {
+    document.querySelector('#status').textContent = 'Все 20 PNG загружены. Хвост: исходный цикл, 264 мс на кадр. Поглаживание меняет только голову.';
+  }
+}
+button.onclick = () => {
+  advanceTo(performance.now());
+  playing = !playing;
+  render();
+};
+petButton.onclick = () => {
+  advanceTo(performance.now());
+  if (!FoxMotion.pose(motion).reacting) FoxMotion.pet(motion);
+  playing = true;
+  render();
+};
+document.querySelector('#mirror').onchange = render;
+document.querySelector('#referenceplay').onchange = () => {
+  advanceTo(performance.now());
+  render();
+};
+for (const image of [...originals, ...poses.flat()]) {
+  image.onload = render;
+  image.onerror = () => { document.querySelector('#status').textContent = 'Не удалось загрузить локальный PNG.'; };
+}
+function tick(time) {
+  advanceTo(time);
+  render();
+  requestAnimationFrame(tick);
+}
+render();
+requestAnimationFrame(tick);
+</script></html>

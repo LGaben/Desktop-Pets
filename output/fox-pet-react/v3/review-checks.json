@@ -1,0 +1,23 @@
+{
+  "all_30_original_hashes_match": true,
+  "feet_band_exact_all_6_pngs": true,
+  "shared_viewport": [
+    46,
+    37
+  ],
+  "shared_scale": 1,
+  "display_zoom": [
+    1,
+    6
+  ],
+  "destination_anchor": [
+    26.5,
+    36
+  ],
+  "static_html_links_checked": 15,
+  "static_html_missing_links": [],
+  "default_paused": true,
+  "reference_fixed": true,
+  "browser_qa": "unavailable",
+  "exe_sha256_current": "9976225c2add1d6e495b32d6ece51afbe9137614d62730a37a839c809b5c28a0"
+}

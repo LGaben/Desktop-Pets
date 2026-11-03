@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Callable
 
-from PyQt5.QtCore import QPoint
-from PyQt5.QtGui import QPixmap
+from PyQt6.QtCore import QPoint, QSize
+from PyQt6.QtGui import QPixmap
 
 
 class BasePet(ABC):
@@ -16,14 +17,28 @@ class BasePet(ABC):
     ``animation_speed``, ``facing_right``.
     """
 
+    window_size = QSize(64, 64)
+
+    def pause(self) -> None:
+        """Suspend model-owned activity when the window is hidden."""
+
+    def resume(self) -> None:
+        """Resume model-owned activity."""
+
+    def cleanup(self) -> None:
+        self.pause()
+
+    def set_state_saver(self, callback: Callable[[], None] | None) -> None:
+        self._state_saver = callback
+
     # -- abstract interface ------------------------------------------------
 
     @abstractmethod
-    def get_current_sprite(self) -> QPixmap | None:
+    def get_current_sprite(self, dt: float = 0.033) -> QPixmap | None:
         """Return the current animation frame, or None if unavailable."""
 
     @abstractmethod
-    def get_next_position(self) -> QPoint:
+    def get_next_position(self, dt: float = 0.033) -> QPoint:
         """Calculate and return the next on-screen position."""
 
     @abstractmethod
@@ -55,8 +70,8 @@ class BasePet(ABC):
         """Wake the pet up."""
 
     @abstractmethod
-    def pet_action(self) -> None:
-        """Handle a left-click interaction."""
+    def pet_action(self) -> bool:
+        """Handle a left-click interaction; report whether a new action began."""
 
     @abstractmethod
     def save_state(self) -> None:

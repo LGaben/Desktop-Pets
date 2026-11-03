@@ -1,0 +1,6 @@
+# CPython 3.13 / Windows AMD64 only; hashes are wheel SHA256 from primary PyPI.
+# See windows-cp313-amd64.provenance.json; validate with scripts/verify_lock.py.
+--only-binary=:all:
+PyQt6==6.12.0 --hash=sha256:c764f22d101ea9885533ee8452752b929e2ad1d3d77a5c1c12ac82e5f30c99ae
+PyQt6-Qt6==6.12.0 --hash=sha256:a0f3e52fcd014b3d40f4aa856f8cb6843cf13720a2c2f31267f03702bc54d07b
+PyQt6-sip==13.13.0 --hash=sha256:b202f08bf0d68c0bd80def5c273acd0e1fe3deee8eda9ad8244b8286bc333e0a

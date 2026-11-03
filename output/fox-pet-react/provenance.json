@@ -1,0 +1,57 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "transparent_background": true,
+  "prompt_file": "prompt.txt",
+  "reference_roles": {
+    "assets/sprites/fox/idle/frame_1.png": "identity, pose, pixel structure",
+    "assets/sprites/fox/idle/frame_3.png": "animation style"
+  },
+  "default_generated_file": "C:\\Users\\User\\.codex\\generated_images\\01a167da-7b80-7000-a084-3f84fb384cb7\\exec-bffe5e3a-c26f-4968-8018-f12d2d7a276e.png",
+  "workspace_copy": "output/fox-pet-react/pet-react-candidate-v1.png",
+  "sha256": "25bfb4a6fe84f1ac91145c74f84027f49f9fa58a6caff64c5d49777f49fe645a",
+  "size": [
+    1706,
+    922
+  ],
+  "mode": "RGBA",
+  "alpha_range": [
+    0,
+    255
+  ],
+  "status": "rejected_for_integration",
+  "user_approval": false,
+  "image_modifications": "none; copied unchanged",
+  "preview": "preview.html: canvas only, diagnostic equal-area cropping and nearest-neighbor display; no PNG rewriting",
+  "targeted_iteration_v2": {
+    "tool": "built-in image_gen.imagegen",
+    "intent": "precise-object-edit",
+    "edit_target": "assets/sprites/fox/idle/frame_1.png",
+    "prompt_file": "prompt-v2.txt",
+    "transparent_background": true,
+    "default_generated_file": "C:\\Users\\User\\.codex\\generated_images\\01a167da-7b80-7000-a084-3f84fb384cb7\\exec-22fb92c8-3ae7-4162-8e76-a2f0d4f5c5ea.png",
+    "workspace_copy": "output/fox-pet-react/pet-react-keyframe-v2.png",
+    "sha256": "023a3601f0ed5df9a8e616dd87fcf5e97eb07c600bb631aa89946d1b98bedf8f",
+    "size": [
+      1398,
+      1125
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "status": "rejected_for_integration",
+    "user_approval": false,
+    "image_modifications": "none; copied unchanged"
+  },
+  "overall_status": "failed_quality_gate",
+  "browser_qa": "blocked: no available browser",
+  "v1_v2_user_decision": "rejected_style",
+  "current_candidate": {
+    "version": "v4",
+    "status": "pending_user_review",
+    "workflow": "original-derived head translation over uninterrupted current idle phase",
+    "generator_used": false
+  },
+  "v3_user_feedback": "style liked; only blinking, insufficient as interaction"
+}

@@ -5,21 +5,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pet.base_pet import BasePet
+from pet.catalog import PET_TYPES
 from pet.full_pet import FullPet
 from pet.simple_pet import SimplePet
 
 if TYPE_CHECKING:
-    from utils.database import PetDatabase
+    from pet.protocols import PetStorage
 
-_SIMPLE_PET_TYPES: frozenset[str] = frozenset({
-    # original PNG-based
-    "fox", "panda", "cockatiel",
-    # GIF-converted batch
-    "dog", "turtle", "totoro",
-    "chicken", "clippy", "crab", "deno", "horse",
-    "mod", "monkey", "morph", "rat", "rocky",
-    "rubber_duck", "skeleton", "snail", "snake", "zappy",
-})
+_SIMPLE_PET_TYPES = frozenset(PET_TYPES)
 
 
 class PetFactory:
@@ -34,7 +27,8 @@ class PetFactory:
     def create(
         pet_type: str,
         name: str | None = None,
-        db: PetDatabase | None = None,
+        db: PetStorage | None = None,
+        personality_id: str | None = None,
     ) -> BasePet:
         """Instantiate and return the appropriate pet subclass.
 
@@ -49,16 +43,10 @@ class PetFactory:
             A fully initialised :class:`BasePet` subclass.
         """
         if pet_type in _SIMPLE_PET_TYPES:
-            return SimplePet(pet_type, name)
+            return SimplePet(pet_type, name, personality_id=personality_id)
         return FullPet(pet_type, name or "Питомец", db)
 
     @staticmethod
     def available_types() -> list[str]:
         """Return all registered pet-type identifiers."""
-        return [
-            "fox", "panda", "cockatiel",
-            "dog", "turtle", "totoro",
-            "chicken", "clippy", "crab", "deno", "horse",
-            "mod", "monkey", "morph", "rat", "rocky",
-            "rubber_duck", "skeleton", "snail", "snake", "zappy",
-        ]
+        return list(PET_TYPES)

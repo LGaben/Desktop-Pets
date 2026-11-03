@@ -4,7 +4,7 @@ A transparent, always-on-top desktop companion that lives on your screen and in 
 Drag it around, throw a ball, let it follow your cursor, or just watch it wander on its own.
 
 > **Pet sprites and animations are taken from [vscode-pets](https://github.com/tonybaloney/vscode-pets)** by Anthony Shaw — a beloved VS Code extension.  
-> This project is a standalone Windows reimagining: the pets are extracted from the extension, wrapped in a native PyQt5 transparent window, and given new behaviors (physics ball, mouse-following AI, multi-pet support, a cyberpunk settings UI, and Windows Registry persistence).
+> This project is a standalone Windows reimagining: the pets are extracted from the extension, wrapped in a native PyQt6 transparent window, and given new behaviors (physics ball, mouse-following AI, multi-pet support, a cyberpunk settings UI, and Windows Registry persistence).
 
 ---
 
@@ -28,12 +28,24 @@ Drag it around, throw a ball, let it follow your cursor, or just watch it wander
 ```
 dist/DesktopPet.exe  — double-click, no Python needed
 ```
+The existing EXE predates the Qt6 security changes. It has been preserved for rollback;
+use the checked release-build workflow below to produce a new candidate.
 Pet state is stored in `pet_data.db` next to the exe.  
 Language and pet choice are stored in `HKCU\Software\DesktopPet` (Windows Registry).
 
 ### From source
+Use Windows CPython 3.13 AMD64 in a local virtual environment for the locked release target:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip --isolated install --index-url https://pypi.org/simple --require-hashes --only-binary=:all: -r requirements.txt
+.\.venv\Scripts\python.exe main.py
+```
+
+The source API supports Python 3.10+, but checked release wheel hashes target 3.13 x64.
+To run from an already prepared environment:
+
 ```bash
-pip install -r requirements.txt
 python main.py
 ```
 
@@ -60,11 +72,26 @@ python main.py
 
 ### Tray icon (right-click)
 
+Choose **Menu style → Panel / Ring** in the tray menu or the pet's **More…** menu.
+The choice is saved for all pets. Both styles offer the same actions; a small screen
+uses a scrollable panel when the ring cannot fit. Pet, Ball and Sleep are the main
+actions; Settings has a direct gear button, with secondary commands under More.
+The tray's **Pets → name** menu also reaches every pet without clicking its sprite.
+Nearby mouse movement can interest **one randomly chosen pet** for 2–4 seconds,
+after a short delay, followed by a shared 4–6 second break. It may approach or run
+away according to its character. Hovering the pet stops free walking and gives
+1.8 seconds of click grace after the pointer leaves; pressing freezes movement
+immediately. A still cursor does not start a reaction. **Follow continuously** is
+an explicit command; sleep, petting, dragging, menus and ball play take priority.
+Keyboard activity does not animate or move the pet.
+
 | Item | Description |
 |---|---|
 | Show Pet / Hide Pet | Toggle primary pet visibility |
 | Hide All / Show All | Toggle all pets at once |
 | ⚙️ Settings | Open settings |
+| Menu style → Panel / Ring | Set the interaction menu for all pets |
+| Pets → name | Open actions for a pet without chasing its sprite |
 | ➕ Add Pet | Spawn a satellite pet (submenu) |
 | ❌ Quit | Exit |
 
@@ -219,13 +246,18 @@ If a sprite folder is missing, `SpriteLoader` falls back to a coloured circle pl
 
 ## Persistence
 
-Settings (language, primary pet type) are stored in the Windows Registry under:
+Language and all pets (primary and extras, including names, types and positions) are stored in the Windows Registry under:
 
 ```
 HKEY_CURRENT_USER\Software\DesktopPet
 ```
 
-No `config.json`, no loose files. The key is created automatically on the first settings change and survives exe updates.
+The key is created on the first change and survives exe updates. Legacy `lang` and `pet` values are supported; `pets` stores the validated roster. Extra pets are restored on startup, invalid records fall back to defaults, and removed pets stay removed.
+
+Malformed/deep JSON and inputs exceeding 4,194,304 characters use an in-memory fallback.
+The original stored roster is preserved through automatic saves. Explicit Settings Apply,
+adding a pet or removing a pet authorizes replacing that damaged roster. There is no hidden
+pet-count cap. Names are displayed as plain text.
 
 Pet state (for FullPet) is stored in `pet_data.db` (SQLite) next to the exe.
 
@@ -233,16 +265,20 @@ Pet state (for FullPet) is stored in `pet_data.db` (SQLite) next to the exe.
 
 ## Building from Source
 
-```bash
-pip install pyinstaller
-pyinstaller DesktopPet.spec --noconfirm
+```powershell
+python scripts/build_release.py --install
 ```
 
-Output: `dist/DesktopPet.exe` (~37 MB single file, no installer needed).
+Requires a working Windows CPython 3.13 AMD64 (MSC) interpreter. The helper creates
+a project-local build venv, installs only the reviewed hash-locked wheels from PyPI,
+runs pip check and tests, and builds into a new `dist-test-security-<timestamp>` folder.
+Existing `dist/DesktopPet.exe` and prior candidates are preserved.
 
-The spec excludes ~17 MB of unused Qt modules (OpenGL ES, QML, WebEngine, network, SVG, etc.) and strips PyQt5 bindings that aren't imported.
+It checks actual Qt6 DLL versions and the manifest in the produced file without launching
+that EXE. Reports include package versions, a source/asset manifest and candidate hash.
+See [secure build and signing](docs/SECURE_BUILD.md) for reproducible setup, rollback,
+the current Qt advisory scope and optional signing with a personal certificate.
 
-> The `sip not found` warning during build is harmless — PyQt5 on Python 3.13 has sip built in.
 
 ---
 
@@ -258,18 +294,18 @@ pytest tests/ -v
 
 | Problem | Fix |
 |---|---|
-| Pet doesn't appear | `pip install -r requirements.txt` |
+| Pet doesn't appear | Install the locked runtime in the local venv shown above |
 | Tray icon missing | Check that `assets/icons/fox_ico.ico` exists |
 | Sprites not loading | Normal — coloured circles are the fallback |
 | × button doesn't close | Correct — it minimises to tray. Use **❌ Quit** from the tray or context menu |
-| App won't start on first launch | Check that `assets/` folder is next to the exe |
+| App won't start on first launch | Rebuild using the committed spec; assets are bundled inside the executable |
 
 ---
 
 ## Credits
 
 - **Pet sprites & animations** — [vscode-pets](https://github.com/tonybaloney/vscode-pets) by [Anthony Shaw](https://github.com/tonybaloney) (MIT)
-- **UI framework** — [PyQt5](https://www.riverbankcomputing.com/software/pyqt/)
+- **UI framework** — [PyQt6](https://www.riverbankcomputing.com/software/pyqt/)
 - **Packaging** — [PyInstaller](https://pyinstaller.org/)
 
 ---
@@ -278,3 +314,55 @@ pytest tests/ -v
 
 This project is released for personal use.  
 Pet assets are © their respective creators and are redistributed under the terms of the [vscode-pets MIT licence](https://github.com/tonybaloney/vscode-pets/blob/main/LICENSE).
+
+
+Development and wheel distribution:
+
+```powershell
+python -m pip --isolated install --index-url https://pypi.org/simple --require-hashes --only-binary=:all: -r requirements/test-cp313-win_amd64.lock
+python -m pip install --no-deps --no-build-isolation -e .
+$env:QT_QPA_PLATFORM = "offscreen"
+python -m pytest
+Remove-Item Env:QT_QPA_PLATFORM
+python -m pip wheel --no-deps --no-build-isolation --wheel-dir dist-wheel .
+```
+
+The wheel includes `desktop-pet`, sprites and icons. PyQt6 is the runtime
+dependency; test/build tools are in the optional `dev` extra. Hidden pets pause
+their timers and end ball activity; showing them resets elapsed time. The
+stats timer runs only for pets with stats. Settings animate only while visible.
+
+For a single isolated verification run from the project root:
+
+```powershell
+python scripts/verify.py
+```
+
+On the supported Windows CPython 3.13 AMD64 target, `python scripts/verify.py --install-deps`
+installs the reviewed hash-locked tools into `.verification/deps`, never globally.
+The runner records subprocess logs and `summary.json` under `reports/verification/<timestamp>`.
+It runs unit tests, pytest, lint, an event-loop smoke, and separate 1/5/10-pet CPU/memory
+scenarios (idle, moving, hidden). Default benchmarks use Qt offscreen; their CPU numbers
+exclude the desktop compositor and GPU. `--platform windows` explicitly opts into visible
+benchmark windows. The existing EXE is never executed or rebuilt; its hash is checked.
+
+In the current source version, a short click on any pet (or **Pet** in its right-click
+panel) shows three pixel hearts that rise and fade. Pets put to sleep and repeated
+clicks during the effect do not trigger extra effects. Only the fox also reacts with
+its head, keeping its idle tail animation. Other pets continue their current behavior.
+For a code-rendered preview, open `output/fox-pet-react/heart-effect/petting-hearts-4x.apng`.
+It plays once; it is not a GUI screenshot. Reproduce it with
+`python scripts/preview_heart_effect.py` in a development Python with Pillow.
+
+Build the current project into a separate candidate folder, from any working directory:
+
+```powershell
+python 'C:\Users\User\Desktop\prikol\pet\Desktop-Pets\scripts\build_release.py' --install
+```
+
+This direct Python CLI needs no PowerShell execution-policy changes. A thin optional
+`scripts/build_test.ps1` wrapper remains available. The parent `pet/main.py` is an older
+separate copy. Neither it nor old EXEs are updated by the security fixes.
+
+`output/menu-concepts/menu-preview.html` is now a standalone offline preview with local
+icons and a deny-network CSP. Regenerate it with `python scripts/export_menu_preview.py --force`.

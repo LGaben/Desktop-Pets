@@ -1,30 +1,18 @@
-# -*- coding: utf-8 -*-
-"""Desktop Pet – pet package.
+"""Desktop pet public API, loaded lazily so metadata needs no Qt runtime."""
+from importlib import import_module
 
-Public API
-----------
-- :class:`~pet.base_pet.BasePet` – abstract base for all pet types
-- :class:`~pet.full_pet.FullPet` – stat-based pet with AI
-- :class:`~pet.simple_pet.SimplePet` – lightweight ball-chasing pet
-- :class:`~pet.factory.PetFactory` – creates the correct subclass by type
-- :class:`~pet.state.PetState` – behavioural state enum for FullPet
-- :mod:`~pet.protocols` – runtime-checkable capability protocols
-"""
-from pet.base_pet import BasePet
-from pet.factory import PetFactory
-from pet.full_pet import FullPet
-from pet.protocols import BallChaser, HasStats, MouseFollower, PetStorage
-from pet.simple_pet import SimplePet
-from pet.state import PetState
+_EXPORTS = {
+    "BasePet": "base_pet", "PetFactory": "factory", "FullPet": "full_pet",
+    "SimplePet": "simple_pet", "PetState": "state",
+    "BallChaser": "protocols", "HasStats": "protocols",
+    "MouseFollower": "protocols", "PetStorage": "protocols",
+}
+__all__ = list(_EXPORTS)
 
-__all__ = [
-    "BasePet",
-    "BallChaser",
-    "FullPet",
-    "HasStats",
-    "MouseFollower",
-    "PetFactory",
-    "PetState",
-    "PetStorage",
-    "SimplePet",
-]
+
+def __getattr__(name):
+    if name not in _EXPORTS:
+        raise AttributeError(name)
+    value = getattr(import_module(f"pet.{_EXPORTS[name]}"), name)
+    globals()[name] = value
+    return value

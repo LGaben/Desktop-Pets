@@ -2,54 +2,25 @@
 from __future__ import annotations
 import logging
 
+from utils.settings_store import store
+from pet.catalog import PET_TYPES
+
 _log = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Persistence via Windows Registry  (HKCU\Software\DesktopPet)
-# Works identically in dev mode and frozen exe — no files created.
-# ---------------------------------------------------------------------------
-_REGISTRY_PATH              = r"Software\DesktopPet"
-_DEFAULTS: dict[str, str]   = {"lang": "ru", "pet": "fox"}
-
-# In-memory cache — single source of truth; populated by load_settings()
-_settings: dict[str, str]   = dict(_DEFAULTS)
-_current_lang: str           = _DEFAULTS["lang"]
 
 
 def load_settings() -> None:
-    """Populate the in-memory cache from HKCU\\Software\\DesktopPet."""
-    global _settings, _current_lang
-    loaded: dict[str, str] = {}
-    try:
-        import winreg
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _REGISTRY_PATH) as key:
-            for name in _DEFAULTS:
-                try:
-                    val, _ = winreg.QueryValueEx(key, name)
-                    loaded[name] = str(val)
-                except FileNotFoundError:
-                    pass
-        _log.info("Settings loaded from registry: %s", loaded)
-    except FileNotFoundError:
-        _log.info("Registry key absent — first run, using defaults")
-    except Exception as exc:
-        _log.warning("Failed to load settings: %s", exc)
-    _settings    = {**_DEFAULTS, **loaded}
-    _current_lang = _settings["lang"]
+    store.load()
 
 
-def save_settings(updates: dict[str, str] | None = None) -> None:
-    """Merge optional updates into cache then write all keys to registry."""
-    if updates:
-        _settings.update(updates)
-    try:
-        import winreg
-        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, _REGISTRY_PATH) as key:
-            for name, val in _settings.items():
-                winreg.SetValueEx(key, name, 0, winreg.REG_SZ, str(val))
-        _log.info("Settings saved to registry: %s", _settings)
-    except Exception as exc:
-        _log.warning("Failed to save settings: %s", exc)
+def save_settings(updates=None) -> None:
+    updates = updates or {}
+    if updates.get("pet") in PET_TYPES:
+        pets = store.roster()
+        pets[0]["type"] = updates["pet"]
+        store.save(pets=pets, lang=updates.get("lang"))
+    else:
+        store.save(lang=updates.get("lang"))
+
 
 _TRANSLATIONS: dict[str, dict[str, str]] = {
     "ru": {
@@ -102,16 +73,16 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "show_pet":        "Показать питомца",
         "hide_all":        "Скрыть всех",
         "show_all":        "Показать всех",
-        "settings":        "⚙️ Настройки",
-        "quit":            "❌ Выход",
-        "throw_ball":      "\U0001f3be Кинуть мяч",
-        "stop_follow":     "\U0001f50d Отключить слежение",
-        "start_follow":    "\U0001f50d Следовать за мышкой",
-        "wake_up":         "☀️ Разбудить",
-        "sleep":           "\U0001f4a4 Спать",
-        "hide_to_tray":    "\U0001f441 Скрыть в трей",
-        "add_pet":         "➕ Добавить питомца",
-        "remove_pet":      "\U0001f5d1 Убрать",
+        "settings":        "Настройки",
+        "quit":            "Выход",
+        "throw_ball":      "Кинуть мяч",
+        "stop_follow":     "Остановить слежение",
+        "start_follow":    "Следовать постоянно",
+        "wake_up":         "Разбудить",
+        "sleep":           "Спать",
+        "hide_to_tray":    "Скрыть в трей",
+        "add_pet":         "Добавить питомца",
+        "remove_pet":      "Убрать",
         "tray_hide_title": "Desktop Pet",
         "tray_hide_msg":   "Питомец свёрнут в трей.\nДвойной клик на иконке чтобы показать.",
         # -- settings window labels -----------------------------------------
@@ -175,16 +146,16 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "show_pet":        "Show Pet",
         "hide_all":        "Hide All",
         "show_all":        "Show All",
-        "settings":        "⚙️ Settings",
-        "quit":            "❌ Quit",
-        "throw_ball":      "\U0001f3be Throw Ball",
-        "stop_follow":     "\U0001f50d Stop Following",
-        "start_follow":    "\U0001f50d Follow Mouse",
-        "wake_up":         "☀️ Wake Up",
-        "sleep":           "\U0001f4a4 Sleep",
-        "hide_to_tray":    "\U0001f441 Minimize to Tray",
-        "add_pet":         "➕ Add Pet",
-        "remove_pet":      "\U0001f5d1 Remove",
+        "settings":        "Settings",
+        "quit":            "Quit",
+        "throw_ball":      "Throw Ball",
+        "stop_follow":     "Stop following",
+        "start_follow":    "Follow continuously",
+        "wake_up":         "Wake Up",
+        "sleep":           "Sleep",
+        "hide_to_tray":    "Minimize to Tray",
+        "add_pet":         "Add Pet",
+        "remove_pet":      "Remove",
         "tray_hide_title": "Desktop Pet",
         "tray_hide_msg":   "Pet minimized to tray.\nDouble-click the icon to show.",
         "sw_title":        "SETTINGS",
@@ -202,21 +173,39 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
     },
 }
 
+_TRANSLATIONS['ru'].update({
+    'menu_style': 'Стиль меню', 'menu_panel': 'Панель', 'menu_ring': 'Кольцо',
+    'pets_actions': 'Питомцы', 'app_actions': 'Приложение…',
+    'pet_action': 'Погладить', 'ball_action': 'Мяч', 'more_actions': 'Ещё…',
+    'ball_grab_hint': 'Возьмите мяч и отпустите в движении, чтобы бросить. Esc — отмена.',
+    'personality_active': 'Активная · любит движение и игру',
+    'personality_calm': 'Спокойная · чаще отдыхает',
+    'personality_curious': 'Любопытная · интересуется курсором',
+})
+_TRANSLATIONS['en'].update({
+    'menu_style': 'Menu style', 'menu_panel': 'Panel', 'menu_ring': 'Ring',
+    'pets_actions': 'Pets', 'app_actions': 'Application…',
+    'pet_action': 'Pet', 'ball_action': 'Ball', 'more_actions': 'More…',
+    'ball_grab_hint': 'Grab the ball and release while moving to throw. Esc cancels.',
+    'personality_active': 'Active · loves movement and play',
+    'personality_calm': 'Calm · rests more often',
+    'personality_curious': 'Curious · interested in the cursor',
+})
+
+
 def t(key: str) -> str:
-    lang = _TRANSLATIONS.get(_current_lang, _TRANSLATIONS["ru"])
+    lang = _TRANSLATIONS.get(store.lang, _TRANSLATIONS["ru"])
     return lang.get(key, _TRANSLATIONS["ru"].get(key, key))
 
 
 def get_lang() -> str:
-    return _current_lang
+    return store.lang
 
 
 def set_lang(lang: str) -> None:
     """Update in-memory lang only. Prefer save_lang(lang) to also persist."""
-    global _current_lang
     if lang in _TRANSLATIONS:
-        _current_lang = lang
-        _settings["lang"] = lang
+        store.lang = lang
 
 
 def load_lang() -> None:
@@ -226,15 +215,11 @@ def load_lang() -> None:
 
 def save_lang(lang: str | None = None) -> None:
     """Persist language. Pass lang to set + persist in one call."""
-    global _current_lang
-    if lang is not None and lang in _TRANSLATIONS:
-        _current_lang = lang
-        _settings["lang"] = lang
-    save_settings()
+    store.save(lang=lang)
 
 
 def get_pet() -> str:
-    return _settings.get("pet", _DEFAULTS["pet"])
+    return store.pets[0]["type"]
 
 
 def save_pet(pet_type: str) -> None:

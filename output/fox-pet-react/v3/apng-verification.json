@@ -1,0 +1,24 @@
+{
+  "pet-react-1x.apng": {
+    "n_frames": 5,
+    "durations_ms": [
+      180.0,
+      90.0,
+      440.0,
+      90.0,
+      300.0
+    ],
+    "total_ms": 1100.0
+  },
+  "pet-react-8x.apng": {
+    "n_frames": 5,
+    "durations_ms": [
+      180.0,
+      90.0,
+      440.0,
+      90.0,
+      300.0
+    ],
+    "total_ms": 1100.0
+  }
+}
